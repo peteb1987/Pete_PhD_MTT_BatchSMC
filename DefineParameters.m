@@ -37,8 +37,10 @@ Par.PDeath = 0.1;                                                          % Pro
 %%% Observation model parameters                                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ExpClutObs = 0;        % Number of clutter objects expected in scene
-Par.ObsNoiseVar = 1;        % Observation noise variance
+Par.C = [1 0 0 0; 0 1 0 0];         % 2D Observation matrix
+Par.ExpClutObs = 0;                 % Number of clutter objects expected in scene
+Par.ObsNoiseVar = 1;                % Observation noise variance
+Par.R = Par.ObsNoiseVar * eye(2);   % Observation covariance matrix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Algorithm parameters                                                %%%

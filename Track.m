@@ -48,7 +48,7 @@ classdef Track < handle
         % Get Assoc
         function assoc = GetAssoc(obj, t)
             k = obj.Time(t);
-            if (k<1)||(k>length(obj.assoc))
+            if (k<0)||(k>length(obj.assoc))
                 assoc = 0;
             else
                 assoc = obj.assoc(k);
@@ -60,7 +60,7 @@ classdef Track < handle
         % Set Assoc
         function SetAssoc(obj, t, assoc)
             k = obj.Time(t);
-            assert((k>1)&&(k<length(obj.assoc)), 'Cannot set an association because the track is not present at the given time')
+            assert((k>0)&&(k<=length(obj.assoc)), 'Cannot set an association because the track is not present at the given time')
             obj.assoc(k) = assoc;
         end
         
@@ -69,7 +69,7 @@ classdef Track < handle
         % Get State
         function state = GetState(obj, t)
             k = obj.Time(t);
-            assert((k>1)&&(k<length(obj.assoc)), 'Cannot get state because the track is not present at the given time')
+            assert((k>=0)&&(k<=length(obj.state)), 'Cannot get state because the track is not present at the given time')
             state = obj.state{k};
         end
         
@@ -78,7 +78,7 @@ classdef Track < handle
         % Set State
         function SetState(obj, t, state)
             k = obj.Time(t);
-            assert((k>1)&&(k<length(obj.state)), 'Cannot set a state because the track is not present at the given time')
+            assert((k>0)&&(k<=length(obj.state)), 'Cannot set a state because the track is not present at the given time')
             obj.state{k} = state;
         end
         
@@ -87,7 +87,7 @@ classdef Track < handle
         % Check Presence
         function pres = Present(obj, t)
             k = obj.Time(t);
-            if (k>1)&&(k<length(obj.state))
+            if (k>0)&&(k<length(obj.state))
                 pres = true;
             else
                 pres = false;

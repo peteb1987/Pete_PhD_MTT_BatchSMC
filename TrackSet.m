@@ -17,6 +17,13 @@ classdef TrackSet < handle
         end %Constructor
         
         % Copy
+        function new = Copy(obj)
+            t = cell(size(obj.tracks));
+            for k = 1:length(t)
+                t{k} = obj.tracks{k}.Copy;
+            end
+            new = TrackSet(t);    
+        end
         
         
         
