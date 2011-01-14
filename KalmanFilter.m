@@ -18,10 +18,10 @@ for k = 1:L
     
     if k==1
         PredState{1} = Par.A * init_state;
-        PredVar{1} = Par.A * init_var * Par.A + Par.Q;
+        PredVar{1} = Par.A * init_var * Par.A' + Par.Q;
     else
         PredState{k} = Par.A * EstState{k-1};
-        PredVar{k} = Par.A * EstVar{k-1} * Par.A + Par.Q;
+        PredVar{k} = Par.A * EstVar{k-1} * Par.A' + Par.Q;
     end
     
     % Update step

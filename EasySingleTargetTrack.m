@@ -58,10 +58,10 @@ for ii = 1:Par.NumPart
     Part = Distn.particles{ii};
         
     % Filter the observations with a Kalman filter
-    [KFmean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
+    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
     
     % Propose a new track from the KF distribution
-    NewTrack = SampleKalman(KFmean, KFVar);
+    [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
     
     % Update the weights
     
