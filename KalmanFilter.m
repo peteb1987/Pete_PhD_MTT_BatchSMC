@@ -3,12 +3,18 @@ function [ EstState, EstVar ] = KalmanFilter( obs, init_state, init_var )
 
 global Par;
 
+if size(obs, 2) == 0
+    EstState = cell(0,1);
+    EstVar = cell(0,1);
+    return
+end
+
 L = length(obs(:,1));
 
 PredState = cell(L, 1);
 PredVar = cell(L, 1);
 
-PredVar = cell(L, 1);
+EstState = cell(L, 1);
 EstVar = cell(L, 1);
 
 % Set C depending on model

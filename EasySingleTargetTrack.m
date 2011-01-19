@@ -10,7 +10,7 @@ ESS = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-init_track = Track(0, 1, {[1-5; 25; 1; 0]}, 0);
+init_track = Track(0, 1, {[5-5; 25; 5; 0]}, 0);
 init_track_set = TrackSet({init_track});
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -79,16 +79,20 @@ for ii = 1:Par.NumPart
     % Propose a new track from the KF distribution
     [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
     
+    % Caluclate the probability of the artificial distribution term
+    [~, prev_ppsl_prob] = SampleKalman(KFMean(1:L-1, 1), KFVar(1:L-1, 1), Part.tracks{1});
+    
     % Update the track
     Part.tracks{1}.Update(t, NewTrack);
     
     % Update the weights
     post_prob = Posterior(t, L, Part, Observs);
-    weight(ii) = (post_prob - Distn.prev_post(ii)) ...
-               + (Distn.prev_ppsl(ii) - ppsl_prob);
-           
+    weight(ii) = Distn.weight(ii) ...
+               + (post_prob - Distn.prev_post(ii)) ...
+               + (prev_ppsl_prob - ppsl_prob);
+
 	% Store probabilities for the next time step
-    Distn.prev_ppsl(ii) = ppsl_prob;
+%     Distn.prev_ppsl(ii) = ppsl_prob;
     Distn.prev_post(ii) = post_prob;
     
 end
