@@ -38,15 +38,35 @@ for t = 1:T
     for j = 1:Par.NumTgts
         if TrueState{j}.Present(t)
             state = TrueState{j}.GetState(t);
-            Observs(t).r(i, :) = mvnrnd(state(1:2)', Par.ObsNoiseVar*ones(1,2));
+            
+            if Par.FLAG_ObsMod == 0
+                % Gaussian noise only
+                Observs(t).r(i, :) = mvnrnd(state(1:2)', Par.ObsNoiseVar*ones(1,2));
+                
+            elseif Par.FLAG_ObsMod == 1
+                % Bearing only plus gaussian noise
+                [bng, ~] = Cart2Pol(state(1:2));
+                Observs(t).r(i, 1) = bng + mvnrnd(0, Par.ObsNoiseVar);
+                
+            end
+            
             i = i + 1;
         end
     end
     
     % Generate clutter observations
     for i = num_tgts+1:Observs(t).N
-        Observs(t).r(i, 1) = unifrnd(-Par.Xmax, Par.Xmax);
-        Observs(t).r(i, 2) = unifrnd(-Par.Xmax, Par.Xmax);
+        
+        if Par.FLAG_ObsMod == 0
+            % Gaussian noise only
+            Observs(t).r(i, 1) = unifrnd(-Par.Xmax, Par.Xmax);
+            Observs(t).r(i, 2) = unifrnd(-Par.Xmax, Par.Xmax);
+            
+        elseif Par.FLAG_ObsMod == 1
+            % Bearing only plus gaussian noise
+            Observs(t).r(i, 1) = unifrnd(-pi, pi);
+            
+        end
     end
-
+    
 end %GenerateObs

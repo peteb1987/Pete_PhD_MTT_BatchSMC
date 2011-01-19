@@ -84,14 +84,42 @@ classdef Track < handle
         
         
         
+        % Extend
+        function Extend(obj, t, state, assoc)
+            assert(t==obj.death, 'Can only extend track by one state at a time');
+            obj.death = t + 1;
+            obj.num = obj.num + 1;
+            obj.state = [obj.state; state];
+            obj.assoc = [obj.assoc; assoc];
+        end
+        
+        
+        
         % Check Presence
         function pres = Present(obj, t)
             k = obj.Time(t);
-            if (k>0)&&(k<length(obj.state))
+            if (k>0)&&(k<=length(obj.state))
                 pres = true;
             else
                 pres = false;
             end
+        end
+        
+        
+        
+        % Update - update a section of track (multiple states)
+        function Update(obj, t, NewTrack)
+            
+            % % % Does not do associations!! % % %
+            
+            L = length(NewTrack);
+            for tt = t-L+1:t-1
+                k = tt-(t-L);
+                obj.SetState(tt, NewTrack{k})
+            end
+            obj.Extend(t, NewTrack{L}, 0);
+            
+            
         end
 
         

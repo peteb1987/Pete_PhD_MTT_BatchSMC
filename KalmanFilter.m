@@ -11,6 +11,16 @@ PredVar = cell(L, 1);
 PredVar = cell(L, 1);
 EstVar = cell(L, 1);
 
+% Set C depending on model
+if Par.FLAG_ObsMod == 0
+    C = Par.C;
+    
+elseif Par.FLAG_ObsMod == 1
+    % Use EKF approximation
+    C = zeros(1, 4);
+    
+end
+
 % Loop through time
 for k = 1:L
     
@@ -26,12 +36,24 @@ for k = 1:L
     
     % Update step
     
+    if Par.FLAG_ObsMod == 1
+        x1 = PredState{k}(1);
+        x2 = PredState{k}(2);
+        C(1,1) = -(x2/x1)/(1+(x2/x1)^2);
+        C(1,2) = (1/x1)/(1+(x2/x1)^2);
+    end
+    
     % Innovation
-    y = obs{k} - Par.C * PredState{k};
-    s = Par.C * PredVar{k} * Par.C' + Par.R;
-    gain = PredVar{k} * Par.C' / s;
+    if Par.FLAG_ObsMod == 0
+        y = obs{k} - C * PredState{k};
+    elseif Par.FLAG_ObsMod == 1
+        [bng, ~] = Cart2Pol(PredState{k}(1:2));
+        y = obs{k}(1) - bng;
+    end
+    s = C * PredVar{k} * C' + Par.R;
+    gain = PredVar{k} * C' / s;
     EstState{k} = PredState{k} + gain * y;
-    EstVar{k} = (eye(4)-gain*Par.C) * PredVar{k};
+    EstVar{k} = (eye(4)-gain*C) * PredVar{k};
 
 end
 

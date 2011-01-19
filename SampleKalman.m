@@ -1,4 +1,4 @@
-function [ NewTrack, prob ] = SampleKalman( KFMean, KFVar )
+function [ NewTrack, ppsl_prob ] = SampleKalman( KFMean, KFVar )
 %SAMPLEKALMAN Sample from a set of Kalman estimates to generate a new track
 
 global Par;
@@ -23,6 +23,8 @@ for k = length(NewTrack)-1:-1:1
     prob(k) = mvnpdf(NewTrack{k}', norm_mean', norm_var);
 
 end
-    
+
+ppsl_prob = sum(log(prob));
+
 end
 

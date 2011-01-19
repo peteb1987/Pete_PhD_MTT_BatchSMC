@@ -24,4 +24,11 @@ PlotTrueState(TrueState);
 PlotObs(Observs);
 
 % Run tracker
-[ ~ ] = EasySingleTargetTrack( Observs );
+[ Distns, ESS, num_resamples ] = EasySingleTargetTrack( Observs );
+
+% Plot final estimates
+PlotTracks(Distns{Par.T});
+
+% Plot ESS
+figure, plot(ESS), ylim([0 Par.NumPart])
+disp(['Particles resampled ' num2str(num_resamples) ' times']);
