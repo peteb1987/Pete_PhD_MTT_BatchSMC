@@ -1,10 +1,10 @@
-function PlotTrueState( State )
+function f = PlotTrueState( State )
 %PLOTTRUESTATE Plots the correct states
 
 global Par;
 
 % Make a figure of the right size
-figure, hold on
+f = figure; hold on
 xlim([-Par.Xmax Par.Xmax]), ylim([-Par.Xmax Par.Xmax])
 
 % Loop through tracks

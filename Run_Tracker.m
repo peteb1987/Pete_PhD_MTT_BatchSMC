@@ -20,15 +20,16 @@ TargSpec = SpecifyTargetBehaviour;
 [Observs] = GenerateObs(TrueState);
 
 % Plot states and observations
-PlotTrueState(TrueState);
+fig = PlotTrueState(TrueState);
 PlotObs(Observs);
 
 % Run tracker
-[ Distns, ESS, num_resamples ] = EasySingleTargetTrack( Observs );
+[ Distns, ESS_post, ESS_pre, num_resamples ] = EasySingleTargetTrack( Observs );
 
 % Plot final estimates
-PlotTracks(Distns{Par.T});
+PlotTracks(Distns{Par.T}, fig);
 
 % Plot ESS
-figure, plot(ESS), ylim([0 Par.NumPart])
+figure, plot(ESS_post), ylim([0 Par.NumPart])
+figure, plot(ESS_pre), ylim([0 Par.NumPart])
 disp(['Particles resampled ' num2str(num_resamples) ' times']);

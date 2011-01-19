@@ -1,12 +1,17 @@
-function PlotTracks( Distn )
+function PlotTracks( Distn, f )
 %PLOTTRACKS Plot the output of the batch SMC multi-target tracker
 
 global Par;
 
-% Create a window
-figure, hold on
-xlim([-Par.Xmax Par.Xmax]), ylim([-Par.Xmax Par.Xmax])
+if nargin == 1
+    % Create a window
+    figure, hold on
+    xlim([-Par.Xmax Par.Xmax]), ylim([-Par.Xmax Par.Xmax])
 
+else
+    figure(f)
+end
+    
 % Loop through particles
 for ii = 1:Par.NumPart
     

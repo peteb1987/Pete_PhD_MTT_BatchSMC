@@ -15,6 +15,10 @@ if L == 0
     return
 end
 
+for k = 1:L
+    KFVar{k} = (KFVar{k}+KFVar{k}')/2;
+end
+
 if nargin == 3
     NewTrack = track.state(end-L+1:end);
     
