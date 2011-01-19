@@ -36,6 +36,9 @@ for t = 1:Par.T
         num_resamples = num_resamples + 1;
     end
     
+    if resample
+        disp('*** Resampled in this frame');
+    end
     disp(['*** Frame ' num2str(t) ' processed in ' num2str(toc) ' seconds']);
     disp('**************************************************************');
 
@@ -75,7 +78,7 @@ for ii = 1:Par.NumPart
     Part = Distn.particles{ii};
         
     % Filter the observations with a Kalman filter
-    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
+    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), 100*Par.Q);
     
     % Propose a new track from the KF distribution
     [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
