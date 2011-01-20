@@ -45,8 +45,8 @@ for k = 1:L
     if Par.FLAG_ObsMod == 1
         x1 = PredState{k}(1);
         x2 = PredState{k}(2);
-        C(1,1) = -(x2/(x1.^2))/(1+(x2/x1)^2);
-        C(1,2) = (1/x1)/(1+(x2/x1)^2);
+        C(1,1) = -x2/(x1^2+x2^2);%-(x2/(x1.^2))/(1+(x2/x1)^2);
+        C(1,2) = x1/(x1^2+x2^2);%(1/x1)/(1+(x2/x1)^2);
     end
     
     % Innovation
@@ -63,9 +63,4 @@ for k = 1:L
 
 end
 
-
-
-
-
 end
-

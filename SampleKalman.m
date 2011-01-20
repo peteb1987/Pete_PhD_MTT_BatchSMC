@@ -34,10 +34,10 @@ prob = zeros(size(KFMean));
 prob(end) = mvnpdf(NewTrack{end}', KFMean{end}', KFVar{end});
 
 % Loop though time
-for k = length(NewTrack)-1:-1:1
+for k = L-1:-1:1
     
-    norm_mean = (Par.A' * (Par.Q \ Par.A) + inv(Par.Q)) \ (Par.A' * (Par.Q \ NewTrack{k+1}) + (Par.Q \ KFMean{k}));
-    norm_var = inv(Par.A' * (Par.Q \ Par.A) + inv(Par.Q));
+    norm_mean = (Par.A' * (Par.Q \ Par.A) + inv(KFVar{k})) \ (Par.A' * (Par.Q \ NewTrack{k+1}) + (KFVar{k} \ KFMean{k}));
+    norm_var = inv(Par.A' * (Par.Q \ Par.A) + inv(KFVar{k}));
     
     if nargin == 2
         NewTrack{k} = mvnrnd(norm_mean', norm_var)';

@@ -11,7 +11,7 @@ ESS_pre_resam = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-init_track = Track(0, 1, {[-5 0 5 0]'}, 0);
+init_track = Track(0, 1, {[-55 50 5 0]'}, 0);
 init_track_set = TrackSet({init_track});
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -78,7 +78,8 @@ for ii = 1:Par.NumPart
     Part = Distn.particles{ii};
         
     % Filter the observations with a Kalman filter
-    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), 100*Par.Q);
+    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), eye(4));
+%     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
     
     % Propose a new track from the KF distribution
     [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
