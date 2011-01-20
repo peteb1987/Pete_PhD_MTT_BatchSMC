@@ -30,7 +30,7 @@ Par.NumTgts = 1;
 %%% Target dynamic model parameters                                     %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ProcNoiseVar = 100;                                                      % Gaussian process noise variance (random accelerations)
+Par.ProcNoiseVar = 1E-2;                                                      % Gaussian process noise variance (random accelerations)
 Par.A = [1 0 P 0; 0 1 0 P; 0 0 1 0; 0 0 0 1];                              % 2D transition matrix using near CVM model
 Par.B = [P^2/2*eye(2); P*eye(2)];                                          % 2D input transition matrix (used in track generation when we impose a deterministic acceleration)
 Par.Q = Par.ProcNoiseVar * ...

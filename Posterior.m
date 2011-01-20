@@ -19,7 +19,11 @@ for tt = t-L+1:t
     
     % Calculate likelihood
     if Par.FLAG_ObsMod == 0
-        like = like + log( mvnpdf(Observs(tt).r(1, :), state(1:2)', Par.ObsNoiseVar*ones(1,2)) );
+        if any(state(3:4)<-Par.Vmax)||any(state(3:4)>Par.Vmax)||any(state(1:2)>Par.Xmax)||any(state(1:2)<-Par.Xmax)
+            like = -inf;
+        else
+            like = like + log( mvnpdf(Observs(tt).r(1, :), state(1:2)', Par.ObsNoiseVar*ones(1,2)) );
+        end
     elseif Par.FLAG_ObsMod == 1
         [bng, ~] = Cart2Pol(state(1:2));
         like = like + log( mvnpdf(Observs(tt).r(1, 1), bng, Par.ObsNoiseVar) );

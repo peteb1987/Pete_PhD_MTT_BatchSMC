@@ -39,3 +39,6 @@ for ii = 1:Par.NumPart
 
 end
 
+plot(0, 0, 'xk');
+
+end

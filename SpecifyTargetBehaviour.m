@@ -40,7 +40,7 @@ end
 
 j = 1;
 TargSpec(j).birth = 1;
-TargSpec(j).state = [-50 50 5 0]';
+TargSpec(j).state = [-20 20 1 0]';
 num = T - TargSpec(j).birth + 1;
 TargSpec(j).acc = zeros(num, 2);
 
