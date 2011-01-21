@@ -40,7 +40,7 @@ end
 
 j = 1;
 TargSpec(j).birth = 1;
-TargSpec(j).state = [-20 20 1 0]';
+TargSpec(j).state = Par.TargInitState;
 num = T - TargSpec(j).birth + 1;
 TargSpec(j).acc = zeros(num, 2);
 

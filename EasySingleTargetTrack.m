@@ -11,7 +11,7 @@ ESS_pre_resam = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-init_track = Track(0, 1, {[-21 20 1 0]'}, 0);
+init_track = Track(0, 1, {Par.TargInitState-[Par.TargInitState(3:4)' 0 0]'}, 0);
 init_track_set = TrackSet({init_track});
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -72,14 +72,18 @@ end
 % Create a temporary array for un-normalised weights
 weight = zeros(Par.NumPart, 1);
 
+
+post_arr = zeros(Par.NumPart, 1);
+ppsl_arr = zeros(Par.NumPart, 1);
+
 % Loop through particles
 for ii = 1:Par.NumPart
     
     Part = Distn.particles{ii};
         
     % Filter the observations with a Kalman filter
-%     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), eye(4));
-    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
+    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), eye(4));
+%     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
     
     % Propose a new track from the KF distribution
     [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
@@ -99,6 +103,9 @@ for ii = 1:Par.NumPart
                + (post_prob - prev_post_prob) ...
                + (prev_ppsl_prob - ppsl_prob);
 
+    post_arr(ii) = (post_prob - prev_post_prob);
+    ppsl_arr(ii) = (prev_ppsl_prob - ppsl_prob);
+           
 	% Store probabilities for the next time step
 %     Distn.prev_ppsl(ii) = ppsl_prob;
 %     Distn.prev_post(ii) = post_prob;
@@ -110,6 +117,9 @@ for ii = 1:Par.NumPart
 end
 
 assert(~all(isinf(weight)), 'All weights are zero');
+
+disp(['Mean/Variance of proposal term: ' num2str([mean(ppsl_arr), var(ppsl_arr)])]);
+disp(['Mean/Variance of posterior term: ' num2str([mean(post_arr), var(post_arr)])]);
 
 % Normalise weights
 weight = exp(weight);

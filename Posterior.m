@@ -19,7 +19,7 @@ for tt = t-L+1:t
     
     % Calculate likelihood
     if Par.FLAG_ObsMod == 0
-        if any(state(3:4)<-Par.Vmax)||any(state(3:4)>Par.Vmax)||any(state(1:2)>Par.Xmax)||any(state(1:2)<-Par.Xmax)
+        if any(abs(state(3:4))>1.5*Par.Vmax)||any(abs(state(1:2))>Par.Xmax)
             like = -inf;
         else
             like = like + log( mvnpdf(Observs(tt).r(1, :), state(1:2)', Par.ObsNoiseVar*ones(1,2)) );

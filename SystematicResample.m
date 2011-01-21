@@ -39,8 +39,8 @@ jj = 1;
 for ii = 1:Par.NumPart
     for k = 1:N(ii)
         ResamDistn.particles{jj} = Distn.particles{ii};
-        ResamDistn.prev_ppsl(jj) = Distn.prev_ppsl(ii);
-        ResamDistn.prev_post(jj) = Distn.prev_post(ii);
+%         ResamDistn.prev_ppsl(jj) = Distn.prev_ppsl(ii);
+%         ResamDistn.prev_post(jj) = Distn.prev_post(ii);
         jj = jj + 1;
     end
 end

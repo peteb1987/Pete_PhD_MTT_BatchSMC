@@ -4,7 +4,7 @@
 clup
 
 % Set a standard random stream (for repeatability)
-s = RandStream('mt19937ar', 'seed', 1000);
+s = RandStream('mt19937ar', 'seed', 0);
 RandStream.setDefaultStream(s);
 
 % Define all the necessary parameters in a global structure.
