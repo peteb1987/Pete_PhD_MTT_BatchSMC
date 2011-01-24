@@ -37,13 +37,15 @@ prob(end) = mvnpdf(NewTrack{end}', KFMean{end}', KFVar{end});
 for k = L-1:-1:1
     
     norm_var = inv(Par.A' * (Par.Q \ Par.A) + inv(KFVar{k}));
-    norm_mean = norm_var * (Par.A' * (Par.Q \ NewTrack{k+1}) + (KFVar{k} \ KFMean{k}));
+    norm_mean = norm_var * (Par.A' * (Par.Q \ NewTrack{k+1}) + (KFVar{k} \ KFMean{k})); %#ok<MINV>
     
     if nargin == 2
         NewTrack{k} = mvnrnd(norm_mean', norm_var)';
+%         NewTrack{k} = mvnrnd(KFMean{k}', KFVar{k})';
     end
         
     prob(k) = mvnpdf(NewTrack{k}', norm_mean', norm_var);
+%     prob(k) = mvnpdf(NewTrack{k}', KFMean{k}', KFVar{k});
 
 end
 
