@@ -24,7 +24,8 @@ fig = PlotTrueState(TrueState);
 PlotObs(Observs);
 
 % Run tracker
-[ Distns, ESS_post, ESS_pre, num_resamples ] = EasySingleTargetTrack( Observs );
+% [ Distns, ESS_post, ESS_pre, num_resamples ] = EasySingleTargetTrack( Observs );
+[ Distns, ESS_post, ESS_pre, num_resamples ] = MultiTargetTrack( Observs );
 
 % Plot final estimates
 PlotTracks(Distns{Par.T}, fig);

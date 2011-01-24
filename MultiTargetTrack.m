@@ -1,6 +1,6 @@
-function [ Distns, ESS, ESS_pre_resam, num_resamples ] = EasySingleTargetTrack( Observs )
-%EASYSINGLETARGETTRACK Runs a batch SMC tracking algorithm for a single
-% target with no missed observations or clutter
+function [ Distns, ESS, ESS_pre_resam, num_resamples ] = MultiTargetTrack( Observs )
+%MULTITARGETTRACK Runs a batch SMC tracking algorithm for multiple
+% targets with missed observations and clutter
 
 global Par;
 
@@ -11,8 +11,11 @@ ESS_pre_resam = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-init_track = Track(0, 1, {Par.TargInitState{1}-[Par.TargInitState{1}(3:4)' 0 0]'}, 0);
-init_track_set = TrackSet({init_track});
+init_track = cell(Par.NumTgts, 1);
+for j = 1:Par.NumTgts
+    init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
+end
+init_track_set = TrackSet(init_track);
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
 
@@ -62,29 +65,56 @@ global Par;
 % Initialise particle array and weight array
 Distn = Previous.Copy;
 
-% Extend the first track with a blank state (it will be overwritten by the
-% KF output) and known association
-dummy = Distn.particles{1}.tracks{1}.Copy;
-dummy.Extend(t, [0 0 0 0]', 1);
-
-% Generate a list of associated observations
-obs = ListAssocObservs(t, L, dummy, Observs);
-
 % Create a temporary array for un-normalised weights
 weight = zeros(Par.NumPart, 1);
-
-
-post_arr = zeros(Par.NumPart, 1);
-ppsl_arr = zeros(Par.NumPart, 1);
 
 % Loop through particles
 for ii = 1:Par.NumPart
     
     Part = Distn.particles{ii};
+    
+    % Extend all tracks with an ML prediction
+    Part = ProjectTracks(t, Part);
+    
+    % Sample a joint association hypothesis for time t
+    [Part, jah_ppsl] = SampleJAH(t, Part, Observs);
+    
+    state_ppsl = zeros(Par.NumTgts, 1);
+    NewTracks = cell(Par.NumTgts, 1);
+    
+    % Loop through targets
+    for j = 1:Par.NumTgts
+        
+        % Draw up a list of associated hypotheses
+        obs = ListAssocObservs(t, L, Part.tracks{j}, Observs);
+        
+        % Run a Kalman filter for each target
+        [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), 1E-2*eye(4));
+        
+        % Sample Kalman filter
+        [NewTracks(j), state_ppsl(j)] = SampleKalman(KFMean, KFVar);
+        
+        
+        
+        
+        
+        
+    end
+    
+    % Calculate outgoing posterior probability term
+    
+    % Update distribution
+    
+    % Update the weight
+    
+    
+    
+
+    
+    assert(1==0);
         
     % Filter the observations with a Kalman filter
     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), 1E-2*eye(4));
-%     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), eye(4));
 %     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
     
     % Propose a new track from the KF distribution
@@ -97,7 +127,7 @@ for ii = 1:Par.NumPart
     prev_post_prob = Posterior(t-1, L-1, Part, Observs);
     
     % Update the track
-    Part.tracks{1}.Update(t, NewTrack, ones(L,1));
+    Part.tracks{1}.Update(t, NewTrack);
     
     % Update the weights
     post_prob = Posterior(t, L, Part, Observs);
@@ -105,12 +135,9 @@ for ii = 1:Par.NumPart
                + (post_prob - prev_post_prob) ...
                + (prev_ppsl_prob - ppsl_prob);
 
-    post_arr(ii) = (post_prob - prev_post_prob);
-    ppsl_arr(ii) = (prev_ppsl_prob - ppsl_prob);
+
            
-	% Store probabilities for the next time step
-%     Distn.prev_ppsl(ii) = ppsl_prob;
-%     Distn.prev_post(ii) = post_prob;
+    %%% END OF DEVELOPMENT SECTION %%%
     
     if isnan(weight(ii))
         weight(ii) = -inf;
@@ -120,8 +147,8 @@ end
 
 assert(~all(isinf(weight)), 'All weights are zero');
 
-disp(['Mean/Variance of proposal term: ' num2str([mean(ppsl_arr), var(ppsl_arr)])]);
-disp(['Mean/Variance of posterior term: ' num2str([mean(post_arr), var(post_arr)])]);
+% disp(['Mean/Variance of proposal term: ' num2str([mean(ppsl_arr), var(ppsl_arr)])]);
+% disp(['Mean/Variance of posterior term: ' num2str([mean(post_arr), var(post_arr)])]);
 
 % Normalise weights
 weight = exp(weight);

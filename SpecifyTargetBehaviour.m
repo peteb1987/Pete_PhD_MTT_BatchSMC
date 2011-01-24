@@ -36,13 +36,22 @@ end
 %%% Manually overwrite individual target values if desired              %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% SIMPLE TEST
+% % SIMPLE TEST, SINGLE TARGET
+% 
+% j = 1;
+% TargSpec(j).birth = 1;
+% TargSpec(j).state = Par.TargInitState{1};
+% num = T - TargSpec(j).birth + 1;
+% TargSpec(j).acc = zeros(num, 2);
 
-j = 1;
-TargSpec(j).birth = 1;
-TargSpec(j).state = Par.TargInitState;
-num = T - TargSpec(j).birth + 1;
-TargSpec(j).acc = zeros(num, 2);
+% SIMPLE TEST, N TARGETS, CLUTTER, MISSED DETECTIONS
+for j = 1:N
+    TargSpec(j).birth = 1;
+    num = T - TargSpec(j).birth + 1;
+    TargSpec(j).acc = zeros(num, 2);
+    Par.TargInitState{j} = TargSpec(j).state;
+end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End of manual overwrites                                            %%%

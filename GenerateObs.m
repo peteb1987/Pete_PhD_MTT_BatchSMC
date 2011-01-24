@@ -50,6 +50,13 @@ for t = 1:T
                 
             end
             
+            % Remove missed detections
+            if rand < (1-Par.PDetect)
+                Observs(t).r(i, :) = [];
+                Observs(t).N = Observs(t).N - 1;
+                i = i - 1;
+            end
+            
             i = i + 1;
         end
     end

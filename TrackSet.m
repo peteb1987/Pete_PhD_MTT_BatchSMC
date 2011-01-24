@@ -24,20 +24,7 @@ classdef TrackSet < handle
             end
             new = TrackSet(t);    
         end
-        
-        
-        
-        % Shallow Copy
-        function new = ShallowCopy(obj)
-            t = cell(size(obj.tracks));
-            for k = 1:length(t)
-                t{k} = obj.tracks{k};
-            end
-            new = TrackSet(t);    
-        end
-        
-        
-        
+
     end
     
 end

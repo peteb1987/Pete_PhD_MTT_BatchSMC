@@ -12,9 +12,9 @@ Par.FLAG_ObsMod = 0;        % 0 = gaussian, 1 = bearing only
 %%% Scene parameters                                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.T = 100;                             % Number of frames
+Par.T = 20;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
-Par.Xmax = 1000;                         % Scene limit
+Par.Xmax = 250;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
 
 Par.UnifPosDens = 1/(2*Par.Xmax)^2;     % Uniform density on position
@@ -24,8 +24,9 @@ Par.UnifVelDens = 1/(2*Par.Vmax)^2;     % Uniform density on velocity
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 1;
-Par.TargInitState = [-150 150 2 0]';
+Par.NumTgts = 5;
+Par.TargInitState = cell(Par.NumTgts,1);
+Par.TargInitState{1} = [-150 150 2 0]';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Target dynamic model parameters                                     %%%
@@ -44,7 +45,8 @@ Par.PDeath = 0.1;                                                          % Pro
 %%% Observation model parameters                                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ExpClutObs = 0;                 % Number of clutter objects expected in scene
+Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
+Par.PDetect = 0.9;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
     Par.ObsNoiseVar = 1;                % Observation noise variance
@@ -59,5 +61,5 @@ end
 %%% Algorithm parameters                                                %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.L = 10;
+Par.L = 5;
 Par.NumPart = 1000;
