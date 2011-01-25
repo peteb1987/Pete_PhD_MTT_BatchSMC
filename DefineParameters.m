@@ -46,7 +46,7 @@ Par.PDeath = 0.1;                                                          % Pro
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
-Par.PDetect = 0.9;                      % Probability of detecting a target in a given frame
+Par.PDetect = 0.95;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
     Par.ObsNoiseVar = 1;                % Observation noise variance

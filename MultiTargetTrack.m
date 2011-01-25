@@ -73,11 +73,14 @@ for ii = 1:Par.NumPart
     
     Part = Distn.particles{ii};
     
+    % Calculate outgoing posterior probability term
+    prev_post_prob = Posterior(t-1, L-1, Part, Observs);
+    
     % Extend all tracks with an ML prediction
-    Part = ProjectTracks(t, Part);
+    Part.ProjectTracks(t);
     
     % Sample a joint association hypothesis for time t
-    [Part, jah_ppsl] = SampleJAH(t, Part, Observs);
+    jah_ppsl = Part.SampleJAH(t, Observs);
     
     state_ppsl = zeros(Par.NumTgts, 1);
     NewTracks = cell(Par.NumTgts, 1);
@@ -92,53 +95,21 @@ for ii = 1:Par.NumPart
         [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), 1E-2*eye(4));
         
         % Sample Kalman filter
-        [NewTracks(j), state_ppsl(j)] = SampleKalman(KFMean, KFVar);
+        [NewTracks{j}, state_ppsl(j)] = SampleKalman(KFMean, KFVar);
         
-        
-        
-        
-        
+        % Update distribution
+        Part.tracks{j}.Update(t, NewTracks{j}, []);
         
     end
     
-    % Calculate outgoing posterior probability term
-    
-    % Update distribution
+    % Calculate new posterior
+    post_prob = Posterior(t, L, Part, Observs);
     
     % Update the weight
-    
-    
-    
-
-    
-    assert(1==0);
-        
-    % Filter the observations with a Kalman filter
-    [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), 1E-2*eye(4));
-%     [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{1}.GetState(t-L), Par.Q);
-    
-    % Propose a new track from the KF distribution
-    [NewTrack, ppsl_prob] = SampleKalman(KFMean, KFVar);
-    
-    % Caluclate the probability of the artificial distribution term
-    [~, prev_ppsl_prob] = SampleKalman(KFMean(1:L-1, 1), KFVar(1:L-1, 1), Part.tracks{1});
-    
-    % Calculate the outgoing posterior probability term
-    prev_post_prob = Posterior(t-1, L-1, Part, Observs);
-    
-    % Update the track
-    Part.tracks{1}.Update(t, NewTrack);
-    
-    % Update the weights
-    post_prob = Posterior(t, L, Part, Observs);
     weight(ii) = Distn.weight(ii) ...
                + (post_prob - prev_post_prob) ...
-               + (prev_ppsl_prob - ppsl_prob);
+               - (sum(state_ppsl) + jah_ppsl);
 
-
-           
-    %%% END OF DEVELOPMENT SECTION %%%
-    
     if isnan(weight(ii))
         weight(ii) = -inf;
     end

@@ -110,14 +110,31 @@ classdef Track < handle
         % Update - update a section of track (multiple states)
         function Update(obj, t, NewTrack, assoc)
             
+            % Updates track from t-L+1 to t.
+            % Can update states only or states and associations.
+            % Extends track if it dies at t.
+            
             L = length(NewTrack);
-            assert(length(assoc)==L, 'Association vector has incorrect length');
+            assert(isempty(assoc)||(length(assoc)==L), 'Association vector has incorrect length');
+            
+            % Set state and association for t-L+1 to t-L
             for tt = t-L+1:t-1
                 k = tt-(t-L);
                 obj.SetState(tt, NewTrack{k})
-                obj.SetAssoc(tt, assoc(k));
+                if ~isempty(assoc)
+                    obj.SetAssoc(tt, assoc(k));
+                end
             end
-            obj.Extend(t, NewTrack{L}, assoc(L));
+            
+            % Extend track to t if required
+            if obj.death == t
+                obj.Extend(t, NewTrack{L}, assoc(L));
+            elseif obj.death == t+1
+                obj.SetState(t, NewTrack{L})
+                if ~isempty(assoc)
+                    obj.SetAssoc(t, assoc(L));
+                end
+            end
             
         end
 

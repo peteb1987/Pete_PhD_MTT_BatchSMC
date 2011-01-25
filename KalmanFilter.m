@@ -42,24 +42,41 @@ for k = 1:L
     
     % Update step
     
-    if Par.FLAG_ObsMod == 1
-        x1 = PredState{k}(1);
-        x2 = PredState{k}(2);
-        C(1,1) = -x2/(x1^2+x2^2);%-(x2/(x1.^2))/(1+(x2/x1)^2);
-        C(1,2) = x1/(x1^2+x2^2);%(1/x1)/(1+(x2/x1)^2);
+    if length(obs{k})==2
+        
+        % Observation associated with target
+        
+        if Par.FLAG_ObsMod == 1
+            x1 = PredState{k}(1);
+            x2 = PredState{k}(2);
+            C(1,1) = -x2/(x1^2+x2^2);%-(x2/(x1.^2))/(1+(x2/x1)^2);
+            C(1,2) = x1/(x1^2+x2^2);%(1/x1)/(1+(x2/x1)^2);
+        end
+        
+        % Innovation
+        if Par.FLAG_ObsMod == 0
+            y = obs{k} - C * PredState{k};
+        elseif Par.FLAG_ObsMod == 1
+            [bng, ~] = Cart2Pol(PredState{k}(1:2));
+            y = obs{k}(1) - bng;
+        end
+        s = C * PredVar{k} * C' + Par.R;
+        gain = PredVar{k} * C' / s;
+        EstState{k} = PredState{k} + gain * y;
+        EstVar{k} = (eye(4)-gain*C) * PredVar{k};
+        
+    elseif isempty(obs{k})
+        
+        % No observation
+        
+        EstState{k} = PredState{k};
+        EstVar{k} = PredVar{k};
+        
+    else
+        
+        error('Observation model allows for 0 or 1 observations only');
+        
     end
-    
-    % Innovation
-    if Par.FLAG_ObsMod == 0
-        y = obs{k} - C * PredState{k};
-    elseif Par.FLAG_ObsMod == 1
-        [bng, ~] = Cart2Pol(PredState{k}(1:2));
-        y = obs{k}(1) - bng;
-    end
-    s = C * PredVar{k} * C' + Par.R;
-    gain = PredVar{k} * C' / s;
-    EstState{k} = PredState{k} + gain * y;
-    EstVar{k} = (eye(4)-gain*C) * PredVar{k};
 
 end
 
