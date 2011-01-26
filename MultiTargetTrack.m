@@ -114,6 +114,10 @@ for ii = 1:Par.NumPart
         weight(ii) = -inf;
     end
     
+    if isinf(weight(ii))
+        disp(['zero weight in particle ' num2str(ii)]);
+    end
+    
 end
 
 assert(~all(isinf(weight)), 'All weights are zero');

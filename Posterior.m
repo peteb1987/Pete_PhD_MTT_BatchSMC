@@ -22,7 +22,7 @@ for j = 1:Set.N
         prev_state = Set.tracks{j}.GetState(tt-1);
         
         % Calculate likelihood
-        if any(abs(state(3:4))>1.5*Par.Vmax)||any(abs(state(1:2))>Par.Xmax)
+        if any(abs(state(3:4))>2.5*Par.Vmax)||any(abs(state(1:2))>Par.Xmax)
             like(j) = -inf;
         else
             ass = Set.tracks{j}.GetAssoc(tt);
@@ -62,7 +62,7 @@ for tt = t-L+1:t
         elseif ass==0
             assoc(k) = assoc(k) + log(1-Par.PDetect);
         else
-            assert(1==0, 'Invalid association');
+            error('Invalid association');
         end
     end
     

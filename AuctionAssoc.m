@@ -26,7 +26,7 @@ clear temp;
 
 for j = 1:Ns
     for i = 1:No
-        Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), Par.ObsNoiseVar) / Par.UnifPosDens  );
+        Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), 10*Par.ObsNoiseVar) / Par.UnifPosDens  );
         
 %         % If the payoff is less than that of a clutter assignment, disallow
 %         % assignment by setting payoff to -inf.

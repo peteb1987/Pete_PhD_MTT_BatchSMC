@@ -14,7 +14,7 @@ Par.FLAG_ObsMod = 0;        % 0 = gaussian, 1 = bearing only
 
 Par.T = 20;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
-Par.Xmax = 250;                         % Scene limit
+Par.Xmax = 500;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
 
 Par.UnifPosDens = 1/(2*Par.Xmax)^2;     % Uniform density on position
@@ -24,7 +24,7 @@ Par.UnifVelDens = 1/(2*Par.Vmax)^2;     % Uniform density on velocity
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 5;
+Par.NumTgts = 10;
 Par.TargInitState = cell(Par.NumTgts,1);
 Par.TargInitState{1} = [-150 150 2 0]';
 
@@ -32,7 +32,7 @@ Par.TargInitState{1} = [-150 150 2 0]';
 %%% Target dynamic model parameters                                     %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ProcNoiseVar = 2;                                                      % Gaussian process noise variance (random accelerations)
+Par.ProcNoiseVar = 10;                                                      % Gaussian process noise variance (random accelerations)
 Par.A = [1 0 P 0; 0 1 0 P; 0 0 1 0; 0 0 0 1];                              % 2D transition matrix using near CVM model
 Par.B = [P^2/2*eye(2); P*eye(2)];                                          % 2D input transition matrix (used in track generation when we impose a deterministic acceleration)
 Par.Q = Par.ProcNoiseVar * ...
@@ -46,10 +46,10 @@ Par.PDeath = 0.1;                                                          % Pro
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
-Par.PDetect = 0.95;                      % Probability of detecting a target in a given frame
+Par.PDetect = 0.8;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
-    Par.ObsNoiseVar = 1;                % Observation noise variance
+    Par.ObsNoiseVar = 10;                % Observation noise variance
     Par.R = Par.ObsNoiseVar * eye(2);   % Observation covariance matrix
     Par.C = [1 0 0 0; 0 1 0 0];         % 2D Observation matrix
 elseif Par.FLAG_ObsMod == 1
