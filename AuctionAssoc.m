@@ -26,7 +26,7 @@ clear temp;
 
 for j = 1:Ns
     for i = 1:No
-        Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), 10*Par.ObsNoiseVar) / Par.UnifPosDens  );
+        Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), Par.AuctionVar) / Par.UnifPosDens  );
         
 %         % If the payoff is less than that of a clutter assignment, disallow
 %         % assignment by setting payoff to -inf.
@@ -50,7 +50,8 @@ while ~done
             k = find(Rewards==max(Rewards));
             
             if length(k)>1
-                error('More than one best assignment');
+                disp('More than one best assignment!!!');
+                k = k(1);
             end
             
             % Calculate the bidding increment

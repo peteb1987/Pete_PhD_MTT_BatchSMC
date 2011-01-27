@@ -55,6 +55,8 @@ classdef TrackSet < handle
         %SamplfJAH - Probabilitically selects a joint association hypothesis for a frame
         function prob = SampleJAH(obj, t, Observs )
 
+            global Par;
+            
             % % % As a first approximation, use ML % % %
             
             % Dig out target states
@@ -63,8 +65,16 @@ classdef TrackSet < handle
                 states{j} = obj.tracks{j}.GetState(t)';
             end
             
+            if Par.FLAG_ObsMod == 0
+                obs = Observs(t).r;
+            elseif Par.FLAG_ObsMod == 2
+                obs = zeros(size(Observs(t).r));
+                obs(:,1) = Observs(t).r(:,2).*cos(Observs(t).r(:,1));
+                obs(:,2) = Observs(t).r(:,2).*sin(Observs(t).r(:,1));
+            end
+            
             % Auction algorithm for ML associations
-            assoc = AuctionAssoc( states, Observs(t).r );
+            assoc = AuctionAssoc( states, obs );
             
             % Set associations
             for j = 1:obj.N

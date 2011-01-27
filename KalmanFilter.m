@@ -25,6 +25,10 @@ elseif Par.FLAG_ObsMod == 1
     % Use EKF approximation
     C = zeros(1, 4);
     
+elseif Par.FLAG_ObsMod == 2
+    % Use EKF approximation
+    C = zeros(2, 4);
+    
 end
 
 % Loop through time
@@ -46,11 +50,20 @@ for k = 1:L
         
         % Observation associated with target
         
-        if Par.FLAG_ObsMod == 1
+        if (Par.FLAG_ObsMod == 1)||(Par.FLAG_ObsMod == 2)
+            
+            % Bearing linearisation
             x1 = PredState{k}(1);
             x2 = PredState{k}(2);
-            C(1,1) = -x2/(x1^2+x2^2);%-(x2/(x1.^2))/(1+(x2/x1)^2);
-            C(1,2) = x1/(x1^2+x2^2);%(1/x1)/(1+(x2/x1)^2);
+            C(1,1) = -x2/(x1^2+x2^2);
+            C(1,2) = x1/(x1^2+x2^2);
+            
+            % Range linearisation
+            if (Par.FLAG_ObsMod == 2)
+                C(2,1) = x1/sqrt(x1^2+x2^2);
+                C(2,2) = x2/sqrt(x1^2+x2^2);
+            end
+            
         end
         
         % Innovation
@@ -59,6 +72,14 @@ for k = 1:L
         elseif Par.FLAG_ObsMod == 1
             [bng, ~] = Cart2Pol(PredState{k}(1:2));
             y = obs{k}(1) - bng;
+        elseif Par.FLAG_ObsMod == 2
+            [bng, rng] = Cart2Pol(PredState{k}(1:2));
+            y = obs{k} - [bng; rng];
+            if y(1) > pi
+                y(1) = y(1) - 2*pi;
+            elseif y(1) < -pi
+                y(1) = y(1) + 2*pi;
+            end
         end
         s = C * PredVar{k} * C' + Par.R;
         gain = PredVar{k} * C' / s;

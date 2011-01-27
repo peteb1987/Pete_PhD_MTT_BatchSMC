@@ -22,6 +22,14 @@ elseif Par.FLAG_ObsMod == 1
     for t = 1:T
         plot(t, Observs(t).r(:,1), 'xr');
     end
+    
+elseif Par.FLAG_ObsMod == 2
+        
+        xlim([-Par.Xmax Par.Xmax]), ylim([-Par.Xmax Par.Xmax])
+        
+        for t = 1:T
+            plot(Observs(t).r(:, 2).*cos(Observs(t).r(:, 1)), Observs(t).r(:, 2).*sin(Observs(t).r(:, 1)), 'xr');
+        end
 
 end
 

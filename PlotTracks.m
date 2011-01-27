@@ -28,8 +28,9 @@ for ii = 1:Par.NumPart
         
         % Collate state
         for k = 1:num
-            x(k) = Distn.particles{ii}.tracks{j}.state{k}(1);
-            y(k) = Distn.particles{ii}.tracks{j}.state{k}(2);
+            state = Distn.particles{ii}.tracks{j}.state{k};
+            x(k) = state(1);
+            y(k) = state(2);
         end
             
         % Plot track

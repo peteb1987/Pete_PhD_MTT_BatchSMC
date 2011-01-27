@@ -48,12 +48,22 @@ for t = 1:T
                 [bng, ~] = Cart2Pol(state(1:2));
                 Observs(t).r(i, 1) = bng + mvnrnd(0, Par.ObsNoiseVar);
                 
+            elseif Par.FLAG_ObsMod == 2
+                % Polar (Bearing first) plus gaussian noise
+                [bng, rng] = Cart2Pol(state(1:2));
+                if bng > pi
+                    bng = bng - pi;
+                elseif bng < -pi
+                    bng = bng + pi;
+                end
+                Observs(t).r(i, :) = [bng, rng] + mvnrnd([0 0], Par.R);
             end
             
             % Remove missed detections
             if rand < (1-Par.PDetect)
                 Observs(t).r(i, :) = [];
                 Observs(t).N = Observs(t).N - 1;
+                num_tgts = num_tgts - 1;
                 i = i - 1;
             end
             
@@ -72,6 +82,11 @@ for t = 1:T
         elseif Par.FLAG_ObsMod == 1
             % Bearing only plus gaussian noise
             Observs(t).r(i, 1) = unifrnd(-pi, pi);
+            
+        elseif Par.FLAG_ObsMod == 2
+            % Bearing and range plus gaussian noise
+            Observs(t).r(i, 1) = unifrnd(-pi, pi);
+            Observs(t).r(i, 2) = unifrnd(0, Par.Xmax);
             
         end
     end

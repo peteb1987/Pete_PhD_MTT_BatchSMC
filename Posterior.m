@@ -28,16 +28,25 @@ for j = 1:Set.N
             ass = Set.tracks{j}.GetAssoc(tt);
             if ass~=0
                 if Par.FLAG_ObsMod == 0
-                    like(j) = like(j) + log( mvnpdf(Observs(tt).r(ass, :), state(1:2)', Par.ObsNoiseVar*ones(1,2)) );
+                    like(j) = like(j) + log( mvnpdfFastSymm(Observs(tt).r(ass, :), state(1:2)', Par.ObsNoiseVar) );
                 elseif Par.FLAG_ObsMod == 1
                     [bng, ~] = Cart2Pol(state(1:2));
                     like = like + log( mvnpdf(Observs(tt).r(ass, 1), bng, Par.ObsNoiseVar) );
+                elseif Par.FLAG_ObsMod == 2
+                    [bng, rng] = Cart2Pol(state(1:2));
+                    if abs(Observs(tt).r(ass, 1) - bng) > pi
+                        bng = bng + 2*pi;
+                    elseif abs(Observs(tt).r(ass, 1) - bng) < - pi
+                        bng = bng - 2*pi;
+                    end
+                    like(j) = like(j) + log( mvnpdf(Observs(tt).r(ass, :), [bng rng], diag(Par.R)') );
                 end
             end
         end
         
         % Calculate transition density
-        trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdf(state', (Par.A * prev_state)', Par.Q) );
+        trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdfQ(state', (Par.A * prev_state)') );
+%         trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdf(state', (Par.A * prev_state)', Par.Q) );
         
     end
     
@@ -69,7 +78,7 @@ for tt = t-L+1:t
     % Clutter term
     num_targ = length(obs_assigned);
     num_clut = Observs(tt).N - num_targ;
-    clut(k) = num_clut * log(Par.UnifPosDens);
+    clut(k) = num_clut * log(Par.ClutDens);
 
 end
 
