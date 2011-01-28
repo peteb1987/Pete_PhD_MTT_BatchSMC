@@ -51,7 +51,7 @@ for j = 1:N
     TargSpec(j).acc = zeros(num, 2);
     Par.TargInitState{j} = TargSpec(j).state;
 end
-
+TargSpec(1).death = 11;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End of manual overwrites                                            %%%

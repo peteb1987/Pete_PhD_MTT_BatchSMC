@@ -40,7 +40,9 @@ for t = 1:Par.T
     end
     
     if resample
-        disp('*** Resampled in this frame');
+        disp(['*** ESS = ' num2str(ESS_pre_resam(t)) ' : Resampled in this frame']);
+    else
+        disp(['*** ESS = ' num2str(ESS_pre_resam(t))]);
     end
     disp(['*** Frame ' num2str(t) ' processed in ' num2str(toc) ' seconds']);
     disp('**************************************************************');
@@ -86,19 +88,29 @@ for ii = 1:Par.NumPart
     NewTracks = cell(Par.NumTgts, 1);
     
     % Loop through targets
-    for j = 1:Par.NumTgts
+    for j = 1:Part.N
         
-        % Draw up a list of associated hypotheses
-        obs = ListAssocObservs(t, L, Part.tracks{j}, Observs);
-        
-        % Run a Kalman filter for each target
-        [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), 1E-2*eye(4));
-        
-        % Sample Kalman filter
-        [NewTracks{j}, state_ppsl(j)] = SampleKalman(KFMean, KFVar);
-        
-        % Update distribution
-        Part.tracks{j}.Update(t, NewTracks{j}, []);
+        % Only need examine those which are present after t-L
+        if Part.tracks{j}.Present(t-L+1)
+            
+            % How long should the KF run for?
+            num = Part.tracks{j}.death - (t-L+1);
+            
+            % Draw up a list of associated hypotheses
+            obs = ListAssocObservs(t, L, Part.tracks{j}, Observs);
+            obs(num+1:end) = [];
+            
+            % Run a Kalman filter for each target
+            [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), 1E-8*eye(4));
+            
+            % Sample Kalman filter
+            [NewTracks{j}, state_ppsl(j)] = SampleKalman(KFMean, KFVar);
+            
+            % Update distribution
+            end_time = min(t, Part.tracks{j}.death - 1);
+            Part.tracks{j}.Update(end_time, NewTracks{j}, []);
+            
+        end
         
     end
     

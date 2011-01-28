@@ -14,8 +14,10 @@ assoc = zeros(L, 1);
 % Loop through targets
 for j = 1:Set.N
     
+    end_time = min(t, Set.tracks{j}.death-1);
+    
     % Loop through window
-    for tt = t-L+1:t
+    for tt = t-L+1:end_time
         
         % Get states
         state = Set.tracks{j}.GetState(tt);
@@ -50,6 +52,10 @@ for j = 1:Set.N
         
     end
     
+    if end_time < t
+        trans(j) = trans(j) + log(Par.PDeath);
+    end
+    
 end
 
 % Clutter and association terms
@@ -60,18 +66,20 @@ for tt = t-L+1:t
     num_unassigned = Observs(tt).N;
     obs_assigned = [];
     for j = 1:Set.N
-        ass = Set.tracks{j}.GetAssoc(tt);
-        if any(ass==obs_assigned)
-            assoc(k) = -inf;
-            break
-        elseif ass>0
-            obs_assigned = [obs_assigned; ass];
-            num_unassigned = num_unassigned - 1;
-            assoc(k) = assoc(k) + log(Par.PDetect/num_unassigned);
-        elseif ass==0
-            assoc(k) = assoc(k) + log(1-Par.PDetect);
-        else
-            error('Invalid association');
+        if Set.tracks{j}.Present(tt)
+            ass = Set.tracks{j}.GetAssoc(tt);
+            if any(ass==obs_assigned)
+                assoc(k) = -inf;
+                break
+            elseif ass>0
+                obs_assigned = [obs_assigned; ass];
+                num_unassigned = num_unassigned - 1;
+                assoc(k) = assoc(k) + log(Par.PDetect/num_unassigned);
+            elseif ass==0
+                assoc(k) = assoc(k) + log(1-Par.PDetect);
+            else
+                error('Invalid association');
+            end
         end
     end
     

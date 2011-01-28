@@ -26,6 +26,15 @@ classdef TrackSet < handle
         end
         
         
+        
+        % Remove Track
+        function RemoveTrack(obj, j)
+            obj.tracks(j) = [];
+            obj.N = obj.N - 1;
+        end
+        
+        
+        
         %ProjectTracks - Projects each track in a TrackSet forward by one frame.
         function ProjectTracks(obj, t)
             
@@ -34,17 +43,23 @@ classdef TrackSet < handle
             % Loop through targets
             for j = 1:obj.N
                 
-                % Check that the track ends at t-1
-                assert(obj.tracks{j}.death==t, 'Track to be projected does not end at t-1');
-                
-                % Get previous state
-                prev_state = obj.tracks{j}.GetState(t-1);
-                
-                % Project it forward
-                state = Par.A * prev_state;
-                
-                % Extend the track
-                obj.tracks{j}.Extend(t, state, 0);
+                if obj.tracks{j}.death == t
+                    % Only extend it if it dies in the current frame. If
+                    % not, its expired completely.
+                    
+                    % % Check that the track ends at t-1
+                    % assert(obj.tracks{j}.death==t, 'Track to be projected does not end at t-1');
+                    
+                    % Get previous state
+                    prev_state = obj.tracks{j}.GetState(t-1);
+                    
+                    % Project it forward
+                    state = Par.A * prev_state;
+                    
+                    % Extend the track
+                    obj.tracks{j}.Extend(t, state, 0);
+                    
+                end
                 
             end
             
@@ -57,14 +72,41 @@ classdef TrackSet < handle
 
             global Par;
             
+            prob = 0;
+            
+            % Propose target death
+            if (t>=2)
+                for j = 1:obj.N
+                    if (obj.tracks{j}.Present(t)) ...
+                            && (obj.tracks{j}.GetAssoc(t)==0) ...
+                            && (obj.tracks{j}.GetAssoc(t-1)==0) ...
+                            && (obj.tracks{j}.GetAssoc(t-2)==0)
+                        if rand < Par.PRemove
+                            obj.tracks{j}.EndTrack(t-2);
+                        end
+                        prob = prob + log(0.5);
+                    end
+                end
+            end
+            
             % % % As a first approximation, use ML % % %
             
             % Dig out target states
             states = cell(obj.N, 1);
-            for j = 1:obj.N
-                states{j} = obj.tracks{j}.GetState(t)';
+            for j = obj.N:-1:1
+                if obj.tracks{j}.Present(t)
+                    states{j} = obj.tracks{j}.GetState(t)';
+                else
+                    states(j) = [];
+                end
             end
             
+            % Fudge to make sure its the right way round
+            if isempty(states)
+                states = cell(0, 1);
+            end
+            
+            % Generate a list of observations
             if Par.FLAG_ObsMod == 0
                 obs = Observs(t).r;
             elseif Par.FLAG_ObsMod == 2
@@ -77,11 +119,13 @@ classdef TrackSet < handle
             assoc = AuctionAssoc( states, obs );
             
             % Set associations
+            i = 0;
             for j = 1:obj.N
-                obj.tracks{j}.SetAssoc(t, assoc(j));
+                if (obj.tracks{j}.Present(t))
+                    i = i + 1;
+                    obj.tracks{j}.SetAssoc(t, assoc(i));
+                end
             end
-            
-            prob = log(1);
             
         end
         

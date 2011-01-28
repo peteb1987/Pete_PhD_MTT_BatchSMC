@@ -48,11 +48,11 @@ classdef Track < handle
         % Get Assoc
         function assoc = GetAssoc(obj, t)
             k = obj.Time(t);
-%             if (k<0)||(k>length(obj.assoc))
-%                 assoc = 0;
-%             else
+            if (k<0)||(k>length(obj.assoc))
+                assoc = 0;
+            else
                 assoc = obj.assoc(k);
-%             end
+            end
         end
         
         
@@ -69,7 +69,7 @@ classdef Track < handle
         % Get State
         function state = GetState(obj, t)
             k = obj.Time(t);
-%             assert((k>=0)&&(k<=length(obj.state)), 'Cannot get state because the track is not present at the given time')
+            assert((k>=0)&&(k<=length(obj.state)), 'Cannot get state because the track is not present at the given time')
             state = obj.state{k};
         end
         
@@ -82,6 +82,15 @@ classdef Track < handle
             obj.state{k} = state;
         end
         
+        
+        
+        % End track
+        function EndTrack(obj, death)
+            obj.death = death;
+            obj.num = death - obj.birth;
+            obj.state(obj.num+1:end) = [];
+            obj.assoc(obj.num+1:end) = [];
+        end
         
         
         % Extend

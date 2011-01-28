@@ -10,6 +10,11 @@ global Par;
 No = size(Obs, 1);
 Ns = size(State, 1);
 
+if (Ns == 0)||(No == 0)
+    AssocVector = zeros(Ns, 1);
+    return
+end
+
 % First create an association array with No extra elements corresponding
 % to a clutter assignment for each observation
 Assoc = zeros(No, No+Ns);

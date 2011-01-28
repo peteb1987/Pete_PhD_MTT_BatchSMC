@@ -30,6 +30,12 @@ elseif Par.FLAG_ObsMod == 2
         for t = 1:T
             plot(Observs(t).r(:, 2).*cos(Observs(t).r(:, 1)), Observs(t).r(:, 2).*sin(Observs(t).r(:, 1)), 'xr');
         end
+        
+        figure, hold on
+        xlim([-pi, pi]), ylim([0 Par.Xmax]);
+        for t = 1:T
+            plot(Observs(t).r(:, 1), Observs(t).r(:, 2), 'xr');
+        end
 
 end
 
