@@ -75,7 +75,7 @@ classdef TrackSet < handle
             prob = 0;
             
             % Propose target death
-            if (t>=2)
+            if (t>2)
                 for j = 1:obj.N
                     if (obj.tracks{j}.Present(t)) ...
                             && (obj.tracks{j}.GetAssoc(t)==0) ...

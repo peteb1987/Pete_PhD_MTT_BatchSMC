@@ -28,6 +28,12 @@ elseif nargin == 2
     % Last point
     NewTrack{end} = mvnrnd(KFMean{end}', KFVar{end})';
     
+    % % % FUDGE TO STOP OUT-OF-RANGE PROPOSALS
+    if any(abs(NewTrack{k}(3:4))>Par.Vlimit)
+        NewTrack{k}(3:4) = min(max(NewTrack{k}(3:4), -Par.Vlimit), Par.Vlimit);
+        disp('Proposal limited');
+    end
+    
 end
 
 prob = zeros(size(KFMean));
@@ -42,8 +48,15 @@ for k = L-1:-1:1
     if nargin == 2
         NewTrack{k} = mvnrnd(norm_mean', norm_var)';
 %         NewTrack{k} = mvnrnd(KFMean{k}', KFVar{k})';
-    end
         
+        % % % FUDGE TO STOP OUT-OF-RANGE PROPOSALS
+        if any(abs(NewTrack{k}(3:4))>Par.Vlimit)
+            NewTrack{k}(3:4) = min(max(NewTrack{k}(3:4), -Par.Vlimit), Par.Vlimit);
+            disp('Proposal limited');
+        end
+
+    end
+    
     prob(k) = mvnpdf(NewTrack{k}', norm_mean', norm_var);
 %     prob(k) = mvnpdf(NewTrack{k}', KFMean{k}', KFVar{k});
 

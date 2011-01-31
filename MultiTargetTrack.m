@@ -101,7 +101,7 @@ for ii = 1:Par.NumPart
             obs(num+1:end) = [];
             
             % Run a Kalman filter for each target
-            [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), 1E-8*eye(4));
+            [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), Par.KFInitVar*eye(4));
             
             % Sample Kalman filter
             [NewTracks{j}, state_ppsl(j)] = SampleKalman(KFMean, KFVar);

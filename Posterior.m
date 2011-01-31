@@ -24,7 +24,7 @@ for j = 1:Set.N
         prev_state = Set.tracks{j}.GetState(tt-1);
         
         % Calculate likelihood
-        if any(abs(state(3:4))>2.5*Par.Vmax)||any(abs(state(1:2))>Par.Xmax)
+        if any(abs(state(3:4))>Par.Vlimit)||any(abs(state(1:2))>Par.Xmax)
             like(j) = -inf;
         else
             ass = Set.tracks{j}.GetAssoc(tt);
@@ -36,9 +36,9 @@ for j = 1:Set.N
                     like = like + log( mvnpdf(Observs(tt).r(ass, 1), bng, Par.ObsNoiseVar) );
                 elseif Par.FLAG_ObsMod == 2
                     [bng, rng] = Cart2Pol(state(1:2));
-                    if abs(Observs(tt).r(ass, 1) - bng) > pi
+                    if (Observs(tt).r(ass, 1) - bng) > pi
                         bng = bng + 2*pi;
-                    elseif abs(Observs(tt).r(ass, 1) - bng) < - pi
+                    elseif (Observs(tt).r(ass, 1) - bng) < -pi
                         bng = bng - 2*pi;
                     end
                     like(j) = like(j) + log( mvnpdf(Observs(tt).r(ass, :), [bng rng], diag(Par.R)') );
@@ -88,6 +88,19 @@ for tt = t-L+1:t
     num_clut = Observs(tt).N - num_targ;
     clut(k) = num_clut * log(Par.ClutDens);
 
+end
+
+if any(isinf(like))
+    disp('Zero likelihood');
+end
+if any(isinf(trans))
+    disp('Zero transition density');
+end
+if any(isinf(clut))
+    disp('Zero clutter probability');
+end
+if any(isinf(assoc))
+    disp('Zero association probability');
 end
 
 % Combine likelihood and transition density terms

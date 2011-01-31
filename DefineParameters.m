@@ -38,7 +38,7 @@ Par.TargInitState{1} = [-150 150 2 0]';
 %%% Target dynamic model parameters                                     %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ProcNoiseVar = 10;                                                      % Gaussian process noise variance (random accelerations)
+Par.ProcNoiseVar = 1;                                                      % Gaussian process noise variance (random accelerations)
 Par.A = [1 0 P 0; 0 1 0 P; 0 0 1 0; 0 0 0 1];                              % 2D transition matrix using near CVM model
 Par.B = [P^2/2*eye(2); P*eye(2)];                                          % 2D input transition matrix (used in track generation when we impose a deterministic acceleration)
 Par.Q = Par.ProcNoiseVar * ...
@@ -54,7 +54,7 @@ Par.Qchol = chol(Par.Q);                                                   % Cho
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
-Par.PDetect = 0.95;                      % Probability of detecting a target in a given frame
+Par.PDetect = 0.8;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
     Par.ObsNoiseVar = 1;                % Observation noise variance
@@ -76,6 +76,7 @@ end
 Par.L = 5;                              % Length of rolling window
 Par.NumPart = 1000;                     % Number of particles
 
-Par.AuctionVar = 10;                   % Variance of likelihood function used for auction bidding
-
+Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
+Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
+Par.AuctionVar = 10;                    % Variance of likelihood function used for auction bidding
 Par.PRemove = 0.5;                      % Probability of removing a track
