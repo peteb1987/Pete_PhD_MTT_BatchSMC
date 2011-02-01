@@ -70,6 +70,9 @@ Distn = Previous.Copy;
 % Create a temporary array for un-normalised weights
 weight = zeros(Par.NumPart, 1);
 
+% Identify potential birth sites
+% BirthSites = FindBirthSites(t, Observs);
+
 % Loop through particles
 for ii = 1:Par.NumPart
     

@@ -68,11 +68,29 @@ classdef TrackSet < handle
         
         
         %SamplfJAH - Probabilitically selects a joint association hypothesis for a frame
-        function prob = SampleJAH(obj, t, Observs )
+        function prob = SampleJAH(obj, t, Observs)%, BirthSites )
 
             global Par;
             
             prob = 0;
+            
+%             % Propose target birth
+%             for j = 1:obj.N
+%                 for tt = t-2:t
+%                     for k = length(BirthSites):-1:1
+%                         if any(BirthSites{k}==obj.tracks{j}.GetAssoc(tt))
+%                             BirthSites(k)=[];
+%                         end
+%                     end
+%                 end
+%             end
+%             if ~isempty(BirthSites)&&(rand<Par.PAdd)
+%                 
+%                 k = unidrnd(length(BirthSites));
+%                 
+%                 % Add a track
+%                 
+%             end
             
             % Propose target death
             if (t>2)
@@ -89,7 +107,7 @@ classdef TrackSet < handle
                 end
             end
             
-            % % % As a first approximation, use ML % % %
+            % % % As a first approximation, use ML associations % % %
             
             % Dig out target states
             states = cell(obj.N, 1);

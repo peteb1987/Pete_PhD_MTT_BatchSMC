@@ -30,7 +30,7 @@ end
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 10;
+Par.NumTgts = 20;
 Par.TargInitState = cell(Par.NumTgts,1);
 Par.TargInitState{1} = [-150 150 2 0]';
 
@@ -54,7 +54,7 @@ Par.Qchol = chol(Par.Q);                                                   % Cho
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
-Par.PDetect = 0.8;                      % Probability of detecting a target in a given frame
+Par.PDetect = 0.9;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
     Par.ObsNoiseVar = 1;                % Observation noise variance
@@ -80,3 +80,4 @@ Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept vel
 Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
 Par.AuctionVar = 10;                    % Variance of likelihood function used for auction bidding
 Par.PRemove = 0.5;                      % Probability of removing a track
+Par.PAdd = 0.1;                         % Probability of adding a track

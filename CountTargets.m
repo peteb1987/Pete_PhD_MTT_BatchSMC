@@ -1,5 +1,5 @@
 t = 20;
-tt = 20;
+tt = 15;
 
 Distn = Distns{t};
 
