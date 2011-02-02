@@ -1,8 +1,6 @@
 function [ post ] = Posterior(t, L, Set, Observs )
 %POSTERIOR Calculate posterior probability of a TrackSet
 
-% DOES NOT DO TARGET BIRTH/DEATH
-
 global Par;
 
 % Initialise probabilities
@@ -10,21 +8,22 @@ like = zeros(Set.N, 1);
 trans = zeros(Set.N, 1);
 clut = zeros(L, 1);
 assoc = zeros(L, 1);
+birth = zeros(L, 1);
 
 % Loop through targets
 for j = 1:Set.N
     
     end_time = min(t, Set.tracks{j}.death-1);
+    start_time = max(t-L+1, Set.tracks{j}.birth);
     
     % Loop through window
-    for tt = t-L+1:end_time
+    for tt = start_time:end_time
         
         % Get states
         state = Set.tracks{j}.GetState(tt);
-        prev_state = Set.tracks{j}.GetState(tt-1);
         
         % Calculate likelihood
-        if any(abs(state(3:4))>Par.Vlimit)||any(abs(state(1:2))>Par.Xmax)
+        if any(abs(state(3:4))>Par.Vlimit)||any(abs(state(1:2))>1.5*Par.Xmax)
             like(j) = -inf;
         else
             ass = Set.tracks{j}.GetAssoc(tt);
@@ -47,8 +46,13 @@ for j = 1:Set.N
         end
         
         % Calculate transition density
-        trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdfQ(state', (Par.A * prev_state)') );
-%         trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdf(state', (Par.A * prev_state)', Par.Q) );
+        if tt==Set.tracks{j}.birth
+            trans(j) = trans(j) + log(Par.UnifPosDens*Par.UnifVelDens);
+        else
+            prev_state = Set.tracks{j}.GetState(tt-1);
+            trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdfQ(state', (Par.A * prev_state)') );
+            % trans(j) = trans(j) + log( (1-Par.PDeath) * mvnpdf(state', (Par.A * prev_state)', Par.Q) );
+        end
         
     end
     
@@ -88,6 +92,15 @@ for tt = t-L+1:t
     num_clut = Observs(tt).N - num_targ;
     clut(k) = num_clut * log(Par.ClutDens);
 
+    % Birth term
+    num_births = 0;
+    for j = 1:Set.N
+        if tt==Set.tracks{j}.birth
+            num_births = num_births + 1;
+        end
+    end
+    birth(k) = log(poisspdf(num_births, Par.ExpBirth));
+    
 end
 
 if any(isinf(like))
@@ -102,8 +115,11 @@ end
 if any(isinf(assoc))
     disp('Zero association probability');
 end
+if any(isinf(birth))
+    disp('Zero birth probability');
+end
 
 % Combine likelihood and transition density terms
-post = sum(like) + sum(trans) + sum(clut) + sum(assoc);
+post = sum(like) + sum(trans) + sum(clut) + sum(assoc) + sum(birth);
 
 end

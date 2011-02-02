@@ -19,7 +19,7 @@ for ii = 1:Par.NumPart
     for j = 1:Distn.particles{ii}.N
         
         % Choose a colour
-        col = [rand, rand, rand];
+        col = [rand, rand, 0];
         
         % create an array
         num = Distn.particles{ii}.tracks{j}.num;

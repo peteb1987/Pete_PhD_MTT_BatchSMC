@@ -44,14 +44,38 @@ end
 % num = T - TargSpec(j).birth + 1;
 % TargSpec(j).acc = zeros(num, 2);
 
-% SIMPLE TEST, N TARGETS, CLUTTER, MISSED DETECTIONS
+% % SIMPLE TEST, N TARGETS, CLUTTER, MISSED DETECTIONS
+% for j = 1:N
+%     TargSpec(j).birth = 1;
+%     num = T - TargSpec(j).birth + 1;
+%     TargSpec(j).acc = zeros(num, 2);
+%     Par.TargInitState{j} = TargSpec(j).state;
+% end
+% TargSpec(1).death = 11;
+
+% SIMPLE TEST, 5 TARGETS, 2 BORN, 2 DIE
 for j = 1:N
     TargSpec(j).birth = 1;
     num = T - TargSpec(j).birth + 1;
     TargSpec(j).acc = zeros(num, 2);
     Par.TargInitState{j} = TargSpec(j).state;
 end
-TargSpec(1).death = 11;
+TargSpec(2).death = 11;
+TargSpec(3).death = 16;
+TargSpec(4).birth = 3;
+TargSpec(5).birth = 6;
+
+% % TARGETS APPEAR IN EVERY OTHER FRAME. SOME DIE
+% for j = 1:N
+%     TargSpec(j).birth = j;
+%     num = T - TargSpec(j).birth + 1;
+%     TargSpec(j).acc = zeros(num, 2);
+%     Par.TargInitState{j} = TargSpec(j).state;
+% end
+% TargSpec(2).death = 11;
+% TargSpec(3).death = 12;
+% TargSpec(4).death = 13;
+% TargSpec(5).death = 14;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End of manual overwrites                                            %%%

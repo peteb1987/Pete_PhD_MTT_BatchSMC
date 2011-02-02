@@ -35,6 +35,14 @@ classdef TrackSet < handle
         
         
         
+        % Add Track
+        function AddTrack(obj, NewTrack)
+            obj.tracks = [obj.tracks; {NewTrack}];
+            obj.N = obj.N + 1;
+        end
+        
+        
+        
         %ProjectTracks - Projects each track in a TrackSet forward by one frame.
         function ProjectTracks(obj, t)
             
@@ -68,29 +76,58 @@ classdef TrackSet < handle
         
         
         %SamplfJAH - Probabilitically selects a joint association hypothesis for a frame
-        function prob = SampleJAH(obj, t, Observs)%, BirthSites )
+        function prob = SampleJAH(obj, t, Observs, BirthSites )
 
             global Par;
             
             prob = 0;
             
-%             % Propose target birth
-%             for j = 1:obj.N
-%                 for tt = t-2:t
-%                     for k = length(BirthSites):-1:1
-%                         if any(BirthSites{k}==obj.tracks{j}.GetAssoc(tt))
-%                             BirthSites(k)=[];
-%                         end
-%                     end
-%                 end
-%             end
-%             if ~isempty(BirthSites)&&(rand<Par.PAdd)
-%                 
-%                 k = unidrnd(length(BirthSites));
-%                 
-%                 % Add a track
-%                 
-%             end
+            % Propose target birth
+            for j = 1:obj.N
+                for tt = t-2:t
+                    for k = length(BirthSites):-1:1
+                        if any(BirthSites{k}==obj.tracks{j}.GetAssoc(tt))
+                            BirthSites(k)=[];
+                        end
+                    end
+                end
+            end
+            if ~isempty(BirthSites)&&(rand<Par.PAdd)
+                
+                prob = prob + log(Par.PAdd);
+                
+                % Select a random birth site
+                k = unidrnd(length(BirthSites));
+                
+                % Construct a new track start point
+                NewStates = cell(3,1);
+                NewStates{1} = zeros(4,1);
+                NewStates{3} = zeros(4,1);
+                if Par.FLAG_ObsMod == 0
+                    NewStates{3}(1:2) = Observs(t).r( BirthSites{k}(3), : )';
+                    vel = (Observs(t).r( BirthSites{k}(3), : ) - Observs(t-1).r( BirthSites{k}(2), : )) / Par.P;
+                    NewStates{3}(3:4) = vel';
+                elseif Par.FLAG_ObsMod == 2
+                    
+                    % Set final state (for projecting forward)
+                    xt = Pol2Cart(Observs(t).r( BirthSites{k}(3), 1 ), Observs(t).r( BirthSites{k}(3), 2 ));
+                    xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
+                    NewStates{3}(1:2) = xt;
+                    NewStates{3}(3:4) = (xt-xt_1)/Par.P;
+                    
+                    % Set first state (for initialising KF)
+                    xt = Pol2Cart(Observs(t-2).r( BirthSites{k}(1), 1 ), Observs(t-2).r( BirthSites{k}(1), 2 ));
+                    xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
+                    NewStates{1}(1:2) = xt;
+                    NewStates{1}(3:4) = (xt_1-xt)/Par.P;
+                    
+                end
+                
+                % Create and add the new track
+                NewTrack = Track(t-2, t+1, NewStates, BirthSites{k}');
+                obj.AddTrack(NewTrack);
+                
+            end
             
             % Propose target death
             if (t>2)
@@ -100,9 +137,14 @@ classdef TrackSet < handle
                             && (obj.tracks{j}.GetAssoc(t-1)==0) ...
                             && (obj.tracks{j}.GetAssoc(t-2)==0)
                         if rand < Par.PRemove
-                            obj.tracks{j}.EndTrack(t-2);
+                            tt = t-2;
+                            while (obj.tracks{j}.GetAssoc(tt)==0)
+                                tt = tt-1;
+                            end
+                            tt = tt+1;
+                            obj.tracks{j}.EndTrack(tt);
                         end
-                        prob = prob + log(0.5);
+                        prob = prob + log(Par.PRemove);
                     end
                 end
             end

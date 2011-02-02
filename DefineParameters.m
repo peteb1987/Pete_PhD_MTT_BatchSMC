@@ -30,7 +30,7 @@ end
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 20;
+Par.NumTgts = 5;
 Par.TargInitState = cell(Par.NumTgts,1);
 Par.TargInitState{1} = [-150 150 2 0]';
 
@@ -77,7 +77,8 @@ Par.L = 5;                              % Length of rolling window
 Par.NumPart = 1000;                     % Number of particles
 
 Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
+Par.BirthExclusionRadius = 10;          % Radius within which a birth site is not identified
 Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
 Par.AuctionVar = 10;                    % Variance of likelihood function used for auction bidding
 Par.PRemove = 0.5;                      % Probability of removing a track
-Par.PAdd = 0.1;                         % Probability of adding a track
+Par.PAdd = 0.5;                         % Probability of adding a track

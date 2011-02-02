@@ -11,10 +11,12 @@ ESS_pre_resam = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-init_track = cell(Par.NumTgts, 1);
-for j = 1:Par.NumTgts
+% init_track = cell(Par.NumTgts, 1);
+init_track = cell(3, 1);
+for j = 1:3;%Par.NumTgts
     init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
 end
+% init_track = {};
 init_track_set = TrackSet(init_track);
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -44,6 +46,7 @@ for t = 1:Par.T
     else
         disp(['*** ESS = ' num2str(ESS_pre_resam(t))]);
     end
+    disp(['*** Tracks detected in first particle: ' num2str(Distns{t}.particles{1}.N)]);
     disp(['*** Frame ' num2str(t) ' processed in ' num2str(toc) ' seconds']);
     disp('**************************************************************');
 
@@ -71,7 +74,17 @@ Distn = Previous.Copy;
 weight = zeros(Par.NumPart, 1);
 
 % Identify potential birth sites
-% BirthSites = FindBirthSites(t, Observs);
+if t>2
+    BirthSites = FindBirthSites(t, Observs);
+else
+    BirthSites = cell(0, 1);
+end
+
+Diagnostics.post_arr = zeros(Par.NumPart, 1);
+Diagnostics.prev_post_arr = zeros(Par.NumPart, 1);
+Diagnostics.state_ppsl_arr = zeros(Par.NumPart, 1);
+Diagnostics.jah_ppsl_arr = zeros(Par.NumPart, 1);
+Diagnostics.weight_arr = zeros(Par.NumPart, 1);
 
 % Loop through particles
 for ii = 1:Par.NumPart
@@ -85,7 +98,7 @@ for ii = 1:Par.NumPart
     Part.ProjectTracks(t);
     
     % Sample a joint association hypothesis for time t
-    jah_ppsl = Part.SampleJAH(t, Observs);
+    jah_ppsl = Part.SampleJAH(t, Observs, BirthSites);
     
     state_ppsl = zeros(Par.NumTgts, 1);
     NewTracks = cell(Par.NumTgts, 1);
@@ -94,24 +107,24 @@ for ii = 1:Par.NumPart
     for j = 1:Part.N
         
         % Only need examine those which are present after t-L
-        if Part.tracks{j}.Present(t-L+1)
+        if Part.tracks{j}.death > t-L+1
             
             % How long should the KF run for?
-            num = Part.tracks{j}.death - (t-L+1);
+            last = min(t, Part.tracks{j}.death - 1);
+            first = max(t-L+1, Part.tracks{j}.birth+1);
+            num = last - first + 1;
             
             % Draw up a list of associated hypotheses
-            obs = ListAssocObservs(t, L, Part.tracks{j}, Observs);
-            obs(num+1:end) = [];
+            obs = ListAssocObservs(last, num, Part.tracks{j}, Observs);
             
-            % Run a Kalman filter for each target
-            [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(t-L), Par.KFInitVar*eye(4));
+            % Run a Kalman filter the target
+            [KFMean, KFVar] = KalmanFilter(obs, Part.tracks{j}.GetState(first-1), Par.KFInitVar*eye(4));
             
             % Sample Kalman filter
             [NewTracks{j}, state_ppsl(j)] = SampleKalman(KFMean, KFVar);
             
             % Update distribution
-            end_time = min(t, Part.tracks{j}.death - 1);
-            Part.tracks{j}.Update(end_time, NewTracks{j}, []);
+            Part.tracks{j}.Update(last, NewTracks{j}, []);
             
         end
         
@@ -122,9 +135,15 @@ for ii = 1:Par.NumPart
     
     % Update the weight
     weight(ii) = Distn.weight(ii) ...
-               + (post_prob - prev_post_prob) ...
+               + (post_prob)... - prev_post_prob) ...
                - (sum(state_ppsl) + jah_ppsl);
-
+           
+	Diagnostics.post_arr(ii) = post_prob;
+    Diagnostics.prev_post_arr(ii) = prev_post_prob;
+    Diagnostics.state_ppsl_arr(ii) = sum(state_ppsl);
+    Diagnostics.jah_ppsl_arr(ii) = jah_ppsl;
+    Diagnostics.weight_arr(ii) = weight(ii);
+           
     if isnan(weight(ii))
         weight(ii) = -inf;
     end
@@ -137,8 +156,29 @@ end
 
 assert(~all(isinf(weight)), 'All weights are zero');
 
-% disp(['Mean/Variance of proposal term: ' num2str([mean(ppsl_arr), var(ppsl_arr)])]);
-% disp(['Mean/Variance of posterior term: ' num2str([mean(post_arr), var(post_arr)])]);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DIAGNOSTICS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Diagnostics.post_arr = sort(Diagnostics.post_arr, 'descend');
+% Diagnostics.prev_post_arr = sort(Diagnostics.prev_post_arr, 'descend');
+% Diagnostics.state_ppsl_arr = sort(Diagnostics.state_ppsl_arr, 'descend');
+% Diagnostics.jah_ppsl_arr = sort(Diagnostics.jah_ppsl_arr, 'descend');
+% Diagnostics.weight_arr = sort(Diagnostics.weight_arr, 'descend');
+% 
+% Diagnostics.post_arr(1) - Diagnostics.post_arr(2)
+% Diagnostics.prev_post_arr(1) - Diagnostics.prev_post_arr(2)
+% Diagnostics.state_ppsl_arr(1) - Diagnostics.state_ppsl_arr(2)
+% Diagnostics.jah_ppsl_arr(1) - Diagnostics.jah_ppsl_arr(2)
+% Diagnostics.weight_arr(2) - Diagnostics.weight_arr(2)
+
+% std(Diagnostics.post_arr)
+% std(Diagnostics.prev_post_arr)
+% std(Diagnostics.state_ppsl_arr)
+% std(Diagnostics.jah_ppsl_arr)
+% std(Diagnostics.weight_arr)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Normalise weights
 weight = exp(weight);

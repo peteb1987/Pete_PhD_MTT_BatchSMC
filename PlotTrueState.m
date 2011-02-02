@@ -18,7 +18,7 @@ for j = 1:Par.NumTgts
     end
     
     % Plot it
-    plot(coords(:,1), coords(:,2), '-x', 'color', [rand rand rand]);
+    plot(coords(:,1), coords(:,2), '-x', 'color', [rand rand 0]);
     
 end
 
