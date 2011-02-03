@@ -139,6 +139,7 @@ classdef TrackSet < handle
                         if rand < Par.PRemove
                             tt = t-2;
                             while (obj.tracks{j}.GetAssoc(tt)==0)
+                                if tt==1, break; end
                                 tt = tt-1;
                             end
                             tt = tt+1;

@@ -12,7 +12,7 @@ Par.FLAG_ObsMod = 2;        % 0 = cartesian, 1 = bearing only, 2 = polar
 %%% Scene parameters                                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.T = 20;                             % Number of frames
+Par.T = 40;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
 Par.Xmax = 500;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
@@ -30,7 +30,7 @@ end
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 5;
+Par.NumTgts = 10;
 Par.TargInitState = cell(Par.NumTgts,1);
 Par.TargInitState{1} = [-150 150 2 0]';
 

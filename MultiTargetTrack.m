@@ -12,11 +12,11 @@ num_resamples = 0;
 
 % Initialise particle set
 % init_track = cell(Par.NumTgts, 1);
-init_track = cell(3, 1);
-for j = 1:3;%Par.NumTgts
-    init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
-end
-% init_track = {};
+% init_track = cell(3, 1);
+% for j = 1:3;%Par.NumTgts
+%     init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
+% end
+init_track = {};
 init_track_set = TrackSet(init_track);
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -181,6 +181,9 @@ assert(~all(isinf(weight)), 'All weights are zero');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Normalise weights
+max_weight = max(weight);
+max_weight = max_weight(1);
+weight = weight - max_weight;
 weight = exp(weight);
 weight = weight/sum(weight);
 weight = log(weight);
