@@ -36,6 +36,18 @@ elseif Par.FLAG_ObsMod == 2
         for t = 1:T
             plot(Observs(t).r(:, 1), Observs(t).r(:, 2), 'xr');
         end
+        
+        figure
+        subplot(1, 2, 1), hold on
+        xlim([0, Par.T]), ylim([-pi, pi])
+        for t = 1:T
+            plot(t, Observs(t).r(:, 1), 'xr');
+        end
+        subplot(1, 2, 2), hold on
+        xlim([0, Par.T]), ylim([0, Par.Xmax])
+        for t = 1:T
+            plot(t, Observs(t).r(:, 2), 'xr');
+        end
 
 end
 

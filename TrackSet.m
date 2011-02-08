@@ -76,7 +76,7 @@ classdef TrackSet < handle
         
         
         %SamplfJAH - Probabilitically selects a joint association hypothesis for a frame
-        function prob = SampleJAH(obj, t, Observs, BirthSites )
+        function prob = SampleJAH(obj, t, L, Observs, BirthSites )
 
             global Par;
             
@@ -139,7 +139,7 @@ classdef TrackSet < handle
                         if rand < Par.PRemove
                             tt = t-2;
                             while (obj.tracks{j}.GetAssoc(tt)==0)
-                                if tt==1, break; end
+                                if (tt==0)||(tt==t-L), break; end
                                 tt = tt-1;
                             end
                             tt = tt+1;

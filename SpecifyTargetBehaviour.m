@@ -29,6 +29,10 @@ for j = 1:N
     TargSpec(j).state(2) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
     TargSpec(j).state(3) = unifrnd(-Par.Vmax, Par.Vmax);
     TargSpec(j).state(4) = unifrnd(-Par.Vmax, Par.Vmax);
+%     TargSpec(j).state(1) = unifrnd(0.35*Par.Xmax, 0.4*Par.Xmax);
+%     TargSpec(j).state(2) = unifrnd(0.35*Par.Xmax, 0.4*Par.Xmax);
+%     TargSpec(j).state(3) = unifrnd(-Par.Vmax, -0.5*Par.Vmax);
+%     TargSpec(j).state(4) = unifrnd(0, 0.1*Par.Vmax);
     TargSpec(j).acc = zeros(num, 2);
 end
 
@@ -51,10 +55,10 @@ for j = 1:N
     TargSpec(j).acc = zeros(num, 2);
     Par.TargInitState{j} = TargSpec(j).state;
 end
-TargSpec(1).death = 21;
-TargSpec(2).death = 23;
-TargSpec(3).death = 25;
-TargSpec(4).death = 27;
+% TargSpec(1).death = 15;
+% TargSpec(2).death = 23;
+% TargSpec(3).death = 25;
+% TargSpec(4).death = 27;
 
 % % SIMPLE TEST, 5 TARGETS, 2 BORN, 2 DIE
 % for j = 1:N
@@ -68,20 +72,39 @@ TargSpec(4).death = 27;
 % TargSpec(4).birth = 3;
 % TargSpec(5).birth = 6;
 
-% % TARGETS APPEAR IN EVERY OTHER FRAME. SOME DIE
-% for j = 1:N
-%     TargSpec(j).birth = j;
-%     num = T - TargSpec(j).birth + 1;
-%     TargSpec(j).acc = zeros(num, 2);
-%     Par.TargInitState{j} = TargSpec(j).state;
-% end
-% TargSpec(2).death = 11;
-% TargSpec(3).death = 12;
-% TargSpec(4).death = 13;
-% TargSpec(5).death = 14;
+% Birth States
+TargSpec(1).state(1) = 220;
+TargSpec(1).state(2) = 100;
+TargSpec(1).state(3) = -2;
+TargSpec(1).state(4) = 0;
+TargSpec(2).state(1) = 180;
+TargSpec(2).state(2) = 100;
+TargSpec(2).state(3) = 2;
+TargSpec(2).state(4) = 0;
+TargSpec(3).state(1) = 200;
+TargSpec(3).state(2) = 120;
+TargSpec(3).state(3) = 0;
+TargSpec(3).state(4) = -2;
+TargSpec(4).state(1) = 200;
+TargSpec(4).state(2) = 80;
+TargSpec(4).state(3) = 0;
+TargSpec(4).state(4) = 2;
+TargSpec(5).state(1) = 180;
+TargSpec(5).state(2) = 80;
+TargSpec(5).state(3) = 2;
+TargSpec(5).state(4) = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End of manual overwrites                                            %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if Par.FLAG_TargInit
+    for j = 1:N
+        TargSpec(j).birth = 1;
+        num = T - TargSpec(j).birth + 1;
+        TargSpec(j).acc = zeros(num, 2);
+        Par.TargInitState{j} = TargSpec(j).state;
+    end
+end
 
 end %SpecifyTargetBehaviour

@@ -11,12 +11,14 @@ ESS_pre_resam = zeros(Par.T, 1);
 num_resamples = 0;
 
 % Initialise particle set
-% init_track = cell(Par.NumTgts, 1);
-% init_track = cell(3, 1);
-% for j = 1:3;%Par.NumTgts
-%     init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
-% end
-init_track = {};
+if Par.FLAG_TargInit
+    init_track = cell(Par.NumTgts, 1);
+    for j = 1:Par.NumTgts
+        init_track{j} = Track(0, 1, {Par.TargInitState{j}-[Par.TargInitState{j}(3:4)' 0 0]'}, 0);
+    end
+else
+    init_track = {};
+end
 init_track_set = TrackSet(init_track);
 part_set = repmat({init_track_set}, Par.NumPart, 1);
 InitEst = PartDistn(part_set);
@@ -80,6 +82,8 @@ else
     BirthSites = cell(0, 1);
 end
 
+disp(['*** ' num2str(size(BirthSites, 1)) ' birth sites in this frame']);
+
 Diagnostics.post_arr = zeros(Par.NumPart, 1);
 Diagnostics.prev_post_arr = zeros(Par.NumPart, 1);
 Diagnostics.state_ppsl_arr = zeros(Par.NumPart, 1);
@@ -91,14 +95,14 @@ for ii = 1:Par.NumPart
     
     Part = Distn.particles{ii};
     
-    % Calculate outgoing posterior probability term
-    prev_post_prob = Posterior(t-1, L-1, Part, Observs);
+    % % Calculate outgoing posterior probability term
+    % prev_post_prob = Posterior(t-1, L-1, Part, Observs);
     
     % Extend all tracks with an ML prediction
     Part.ProjectTracks(t);
     
     % Sample a joint association hypothesis for time t
-    jah_ppsl = Part.SampleJAH(t, Observs, BirthSites);
+    jah_ppsl = Part.SampleJAH(t, L, Observs, BirthSites);
     
     state_ppsl = zeros(Par.NumTgts, 1);
     NewTracks = cell(Par.NumTgts, 1);
@@ -139,7 +143,7 @@ for ii = 1:Par.NumPart
                - (sum(state_ppsl) + jah_ppsl);
            
 	Diagnostics.post_arr(ii) = post_prob;
-    Diagnostics.prev_post_arr(ii) = prev_post_prob;
+    % Diagnostics.prev_post_arr(ii) = prev_post_prob;
     Diagnostics.state_ppsl_arr(ii) = sum(state_ppsl);
     Diagnostics.jah_ppsl_arr(ii) = jah_ppsl;
     Diagnostics.weight_arr(ii) = weight(ii);

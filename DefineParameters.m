@@ -7,12 +7,13 @@ global Par;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.FLAG_ObsMod = 2;        % 0 = cartesian, 1 = bearing only, 2 = polar
+Par.FLAG_TargInit = true;   % true = targets initialised. false = require detection
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Scene parameters                                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.T = 40;                             % Number of frames
+Par.T = 20;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
 Par.Xmax = 500;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
@@ -30,9 +31,9 @@ end
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 10;
+Par.NumTgts = 5;
 Par.TargInitState = cell(Par.NumTgts,1);
-Par.TargInitState{1} = [-150 150 2 0]';
+% Par.TargInitState{1} = [-150 150 2 0]';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Target dynamic model parameters                                     %%%
@@ -53,7 +54,7 @@ Par.Qchol = chol(Par.Q);                                                   % Cho
 %%% Observation model parameters                                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ExpClutObs = 20;                    % Number of clutter objects expected in scene
+Par.ExpClutObs = 50;                    % Number of clutter objects expected in scene
 Par.PDetect = 0.9;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
@@ -77,8 +78,12 @@ Par.L = 5;                              % Length of rolling window
 Par.NumPart = 1000;                     % Number of particles
 
 Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
-Par.BirthExclusionRadius = 10;          % Radius within which a birth site is not identified
+Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
 Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
-Par.AuctionVar = 10;                    % Variance of likelihood function used for auction bidding
+Par.AuctionVar = 10;Par.R;                    % Variance of likelihood function used for auction bidding
 Par.PRemove = 0.5;                      % Probability of removing a track
 Par.PAdd = 0.5;                         % Probability of adding a track
+
+if Par.FLAG_TargInit
+    Par.PAdd = 0;                     % Don't add targets if they're all pre-initialised
+end
