@@ -30,8 +30,22 @@ Payoffs = [temp zeros(No, Ns)];
 clear temp;
 
 for j = 1:Ns
+    
+    x = State{j};
+    [bng, rng] = Cart2Pol(x(1:2));
+    range_squ = x(1)^2 + x(2)^2;
+    range = sqrt(range_squ);
+    jac = [-x(2)/range_squ, x(1)/range_squ, 0, 0; x(1)/range, x(2)/range, 0, 0];
+    mean_obs = [bng; rng];
+    var_obs = Par.R + jac * Par.Q * jac';
+    
     for i = 1:No
-        Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), Par.AuctionVar) / Par.UnifPosDens  );
+%         Payoffs(i, No+j) = log(  mvnpdfFastSymm(Obs(i, :), State{j}(1:2), Par.AuctionVar) / Par.UnifPosDens  );
+        if Dist(Pol2Cart(Obs(i, 1), Obs(i, 2)), Pol2Cart(mean_obs(1), mean_obs(2)))<Par.Vmax
+            Payoffs(i, No+j) = log(  100000 * Par.PDetect*mvnpdf(Obs(i, :), mean_obs', var_obs) / (Par.ClutDens*(1-Par.PDetect)) );
+        else
+            Payoffs(i, No+j) = -inf;
+        end
         
 %         % If the payoff is less than that of a clutter assignment, disallow
 %         % assignment by setting payoff to -inf.
@@ -97,3 +111,7 @@ for j = 1:Ns
 end
 
 end %AuctionAssoc
+
+function d = Dist(x1, x2)
+d = sqrt((x1(1)-x2(1))^2+(x1(2)-x2(2))^2);
+end

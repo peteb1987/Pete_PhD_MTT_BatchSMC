@@ -31,6 +31,13 @@ for j = 1:Par.NumTgts
     
     % Loop through frames
     for k = 2:num
+        
+        [bng, range] = Cart2Pol(state{k-1});
+        if range > 0.75*Par.Xmax
+            magn = -0.01*(range - 0.75*Par.Xmax);
+            acc = Pol2Cart(bng, magn);
+            TargSpec(j).acc(k, :) = acc;
+        end
 
         % Calculate expected state
         exp_state = Par.A * state{k-1} + Par.B * TargSpec(j).acc(k, :)';

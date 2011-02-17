@@ -25,8 +25,12 @@ for j = 1:N
     TargSpec(j).death = T + 1;
     num = TargSpec(j).death - TargSpec(j).birth;
     TargSpec(j).state = zeros(4, 1);
-    TargSpec(j).state(1) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
-    TargSpec(j).state(2) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
+%     TargSpec(j).state(1) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
+%     TargSpec(j).state(2) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
+    rng = unifrnd(0.45*Par.Xmax, 0.55*Par.Xmax);
+    bng = unifrnd(-pi, pi);
+    TargSpec(j).state(1) = rng*cos(bng);
+    TargSpec(j).state(2) = rng*sin(bng);
     TargSpec(j).state(3) = unifrnd(-Par.Vmax, Par.Vmax);
     TargSpec(j).state(4) = unifrnd(-Par.Vmax, Par.Vmax);
 %     TargSpec(j).state(1) = unifrnd(0.35*Par.Xmax, 0.4*Par.Xmax);
@@ -72,27 +76,27 @@ end
 % TargSpec(4).birth = 3;
 % TargSpec(5).birth = 6;
 
-% Birth States
-TargSpec(1).state(1) = 220;
-TargSpec(1).state(2) = 100;
-TargSpec(1).state(3) = -2;
-TargSpec(1).state(4) = 0;
-TargSpec(2).state(1) = 180;
-TargSpec(2).state(2) = 100;
-TargSpec(2).state(3) = 2;
-TargSpec(2).state(4) = 0;
-TargSpec(3).state(1) = 200;
-TargSpec(3).state(2) = 120;
-TargSpec(3).state(3) = 0;
-TargSpec(3).state(4) = -2;
-TargSpec(4).state(1) = 200;
-TargSpec(4).state(2) = 80;
-TargSpec(4).state(3) = 0;
-TargSpec(4).state(4) = 2;
-TargSpec(5).state(1) = 180;
-TargSpec(5).state(2) = 80;
-TargSpec(5).state(3) = 2;
-TargSpec(5).state(4) = 2;
+% % Birth States
+% TargSpec(1).state(1) = 220;
+% TargSpec(1).state(2) = 100;
+% TargSpec(1).state(3) = -2;
+% TargSpec(1).state(4) = 0;
+% TargSpec(2).state(1) = 180;
+% TargSpec(2).state(2) = 100;
+% TargSpec(2).state(3) = 2;
+% TargSpec(2).state(4) = 0;
+% TargSpec(3).state(1) = 200;
+% TargSpec(3).state(2) = 120;
+% TargSpec(3).state(3) = 0;
+% TargSpec(3).state(4) = -2;
+% TargSpec(4).state(1) = 200;
+% TargSpec(4).state(2) = 80;
+% TargSpec(4).state(3) = 0;
+% TargSpec(4).state(4) = 2;
+% TargSpec(5).state(1) = 180;
+% TargSpec(5).state(2) = 80;
+% TargSpec(5).state(3) = 2;
+% TargSpec(5).state(4) = 2;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% End of manual overwrites                                            %%%

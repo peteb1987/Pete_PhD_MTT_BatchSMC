@@ -76,16 +76,15 @@ Distn = Previous.Copy;
 weight = zeros(Par.NumPart, 1);
 
 % Identify potential birth sites
-if t>2
+if (~Par.FLAG_TargInit)&&(t>2)
     BirthSites = FindBirthSites(t, Observs);
 else
     BirthSites = cell(0, 1);
 end
-
 disp(['*** ' num2str(size(BirthSites, 1)) ' birth sites in this frame']);
 
 Diagnostics.post_arr = zeros(Par.NumPart, 1);
-Diagnostics.prev_post_arr = zeros(Par.NumPart, 1);
+% Diagnostics.prev_post_arr = zeros(Par.NumPart, 1);
 Diagnostics.state_ppsl_arr = zeros(Par.NumPart, 1);
 Diagnostics.jah_ppsl_arr = zeros(Par.NumPart, 1);
 Diagnostics.weight_arr = zeros(Par.NumPart, 1);
@@ -101,8 +100,8 @@ for ii = 1:Par.NumPart
     % Extend all tracks with an ML prediction
     Part.ProjectTracks(t);
     
-    % Sample a joint association hypothesis for time t
-    jah_ppsl = Part.SampleJAH(t, L, Observs, BirthSites);
+    % Sample associations
+    jah_ppsl = Part.SampleAssociations(t, L, Observs, BirthSites);
     
     state_ppsl = zeros(Par.NumTgts, 1);
     NewTracks = cell(Par.NumTgts, 1);
@@ -136,14 +135,15 @@ for ii = 1:Par.NumPart
     
     % Calculate new posterior
     post_prob = Posterior(t, L, Part, Observs);
+%     post_prob = Posterior(t-1, L-1, Part, Observs);
     
     % Update the weight
     weight(ii) = Distn.weight(ii) ...
                + (post_prob)... - prev_post_prob) ...
                - (sum(state_ppsl) + jah_ppsl);
            
-	Diagnostics.post_arr(ii) = post_prob;
-    % Diagnostics.prev_post_arr(ii) = prev_post_prob;
+	  Diagnostics.post_arr(ii) = post_prob;
+%     Diagnostics.prev_post_arr(ii) = prev_post_prob;
     Diagnostics.state_ppsl_arr(ii) = sum(state_ppsl);
     Diagnostics.jah_ppsl_arr(ii) = jah_ppsl;
     Diagnostics.weight_arr(ii) = weight(ii);
@@ -165,7 +165,7 @@ assert(~all(isinf(weight)), 'All weights are zero');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Diagnostics.post_arr = sort(Diagnostics.post_arr, 'descend');
-% Diagnostics.prev_post_arr = sort(Diagnostics.prev_post_arr, 'descend');
+% % Diagnostics.prev_post_arr = sort(Diagnostics.prev_post_arr, 'descend');
 % Diagnostics.state_ppsl_arr = sort(Diagnostics.state_ppsl_arr, 'descend');
 % Diagnostics.jah_ppsl_arr = sort(Diagnostics.jah_ppsl_arr, 'descend');
 % Diagnostics.weight_arr = sort(Diagnostics.weight_arr, 'descend');
@@ -206,15 +206,24 @@ assert(~isnan(ESS_pre), 'Effective Sample Size is non defined (probably all weig
 
 if (ESS_pre < 0.5*Par.NumPart)
     % Resample
-    Distn = SystematicResample(Distn, weight);
+    ResamDistn = SystematicResample(Distn, weight);
+    if Par.FLAG_ResamMove
+        Distn = MoveMCMC(t, L, ResamDistn, Distn, Observs);
+    else
+        Distn = ResamDistn;
+    end
     ESS = Par.NumPart;
     resample = true;
    
+%     Distn = SecondarySampling(t, L, Distn, Observs);
+    
 else
     resample = false;
     ESS = ESS_pre;
     
 end
+
+
 
 % PlotTracks(Distn)
 % uiwait

@@ -75,118 +75,133 @@ classdef TrackSet < handle
         
         
         
-        %SamplfJAH - Probabilitically selects a joint association hypothesis for a frame
-        function prob = SampleJAH(obj, t, L, Observs, BirthSites )
-
+        %SampleJAH - Propose changes to associations at time t, plus birth and death
+        function ppsl_prob = SampleAssociations(obj, t, L, Observs, BirthSites )
+            
             global Par;
             
-            prob = 0;
+            ppsl_prob = 0;
             
             % Propose target birth
-            for j = 1:obj.N
-                for tt = t-2:t
-                    for k = length(BirthSites):-1:1
-                        if any(BirthSites{k}==obj.tracks{j}.GetAssoc(tt))
-                            BirthSites(k)=[];
+            if ~Par.FLAG_TargInit
+                
+                for j = 1:obj.N
+                    for tt = t-2:t
+                        for k = length(BirthSites):-1:1
+                            if any(BirthSites{k}==obj.tracks{j}.GetAssoc(tt))
+                                BirthSites(k)=[];
+                            end
                         end
                     end
                 end
-            end
-            if ~isempty(BirthSites)&&(rand<Par.PAdd)
-                
-                prob = prob + log(Par.PAdd);
-                
-                % Select a random birth site
-                k = unidrnd(length(BirthSites));
-                
-                % Construct a new track start point
-                NewStates = cell(3,1);
-                NewStates{1} = zeros(4,1);
-                NewStates{3} = zeros(4,1);
-                if Par.FLAG_ObsMod == 0
-                    NewStates{3}(1:2) = Observs(t).r( BirthSites{k}(3), : )';
-                    vel = (Observs(t).r( BirthSites{k}(3), : ) - Observs(t-1).r( BirthSites{k}(2), : )) / Par.P;
-                    NewStates{3}(3:4) = vel';
-                elseif Par.FLAG_ObsMod == 2
+                if ~isempty(BirthSites)&&(rand<Par.PAdd)
                     
-                    % Set final state (for projecting forward)
-                    xt = Pol2Cart(Observs(t).r( BirthSites{k}(3), 1 ), Observs(t).r( BirthSites{k}(3), 2 ));
-                    xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
-                    NewStates{3}(1:2) = xt;
-                    NewStates{3}(3:4) = (xt-xt_1)/Par.P;
+                    ppsl_prob = ppsl_prob + log(Par.PAdd);
                     
-                    % Set first state (for initialising KF)
-                    xt = Pol2Cart(Observs(t-2).r( BirthSites{k}(1), 1 ), Observs(t-2).r( BirthSites{k}(1), 2 ));
-                    xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
-                    NewStates{1}(1:2) = xt;
-                    NewStates{1}(3:4) = (xt_1-xt)/Par.P;
+                    % Select a random birth site
+                    k = unidrnd(length(BirthSites));
+                    
+                    % Construct a new track start point
+                    NewStates = cell(3,1);
+                    NewStates{1} = zeros(4,1);
+                    NewStates{3} = zeros(4,1);
+                    if Par.FLAG_ObsMod == 0
+                        NewStates{3}(1:2) = Observs(t).r( BirthSites{k}(3), : )';
+                        vel = (Observs(t).r( BirthSites{k}(3), : ) - Observs(t-1).r( BirthSites{k}(2), : )) / Par.P;
+                        NewStates{3}(3:4) = vel';
+                    elseif Par.FLAG_ObsMod == 2
+                        
+                        % Set final state (for projecting forward)
+                        xt = Pol2Cart(Observs(t).r( BirthSites{k}(3), 1 ), Observs(t).r( BirthSites{k}(3), 2 ));
+                        xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
+                        NewStates{3}(1:2) = xt;
+                        NewStates{3}(3:4) = (xt-xt_1)/Par.P;
+                        
+                        % Set first state (for initialising KF)
+                        xt = Pol2Cart(Observs(t-2).r( BirthSites{k}(1), 1 ), Observs(t-2).r( BirthSites{k}(1), 2 ));
+                        xt_1 = Pol2Cart(Observs(t-1).r( BirthSites{k}(2), 1 ), Observs(t-1).r( BirthSites{k}(2), 2 ));
+                        NewStates{1}(1:2) = xt;
+                        NewStates{1}(3:4) = (xt_1-xt)/Par.P;
+                        
+                    end
+                    
+                    % Create and add the new track
+                    NewTrack = Track(t-2, t+1, NewStates, BirthSites{k}');
+                    obj.AddTrack(NewTrack);
                     
                 end
-                
-                % Create and add the new track
-                NewTrack = Track(t-2, t+1, NewStates, BirthSites{k}');
-                obj.AddTrack(NewTrack);
                 
             end
             
             % Propose target death
-            if (t>2)
-                for j = 1:obj.N
-                    if (obj.tracks{j}.Present(t)) ...
-                            && (obj.tracks{j}.GetAssoc(t)==0) ...
-                            && (obj.tracks{j}.GetAssoc(t-1)==0) ...
-                            && (obj.tracks{j}.GetAssoc(t-2)==0)
-                        if rand < Par.PRemove
-                            tt = t-2;
-                            while (obj.tracks{j}.GetAssoc(tt)==0)
-                                if (tt==0)||(tt==t-L), break; end
-                                tt = tt-1;
+            if ~Par.FLAG_NoDeath
+                
+                if (t>2)
+                    for j = 1:obj.N
+                        if (obj.tracks{j}.Present(t)) ...
+                                && (obj.tracks{j}.GetAssoc(t)==0) ...
+                                && (obj.tracks{j}.GetAssoc(t-1)==0) ...
+                                && (obj.tracks{j}.GetAssoc(t-2)==0)
+                            if rand < Par.PRemove
+                                
+                                ppsl_prob = ppsl_prob + log(Par.PRemove);
+                                
+                                tt = t-2;
+                                while (obj.tracks{j}.GetAssoc(tt)==0)
+                                    if (tt==0)||(tt==t-L), break; end
+                                    tt = tt-1;
+                                end
+                                tt = tt+1;
+                                obj.tracks{j}.EndTrack(tt);
                             end
-                            tt = tt+1;
-                            obj.tracks{j}.EndTrack(tt);
+                            
                         end
-                        prob = prob + log(Par.PRemove);
                     end
                 end
+                
             end
             
-            % % % As a first approximation, use ML associations % % %
+            jah_ppsl = SampleJAH(t, obj, Observs);
+            ppsl_prob = ppsl_prob + sum(jah_ppsl);
             
-            % Dig out target states
-            states = cell(obj.N, 1);
-            for j = obj.N:-1:1
-                if obj.tracks{j}.Present(t)
-                    states{j} = obj.tracks{j}.GetState(t)';
-                else
-                    states(j) = [];
-                end
-            end
-            
-            % Fudge to make sure its the right way round
-            if isempty(states)
-                states = cell(0, 1);
-            end
-            
-            % Generate a list of observations
-            if Par.FLAG_ObsMod == 0
-                obs = Observs(t).r;
-            elseif Par.FLAG_ObsMod == 2
-                obs = zeros(size(Observs(t).r));
-                obs(:,1) = Observs(t).r(:,2).*cos(Observs(t).r(:,1));
-                obs(:,2) = Observs(t).r(:,2).*sin(Observs(t).r(:,1));
-            end
-            
-            % Auction algorithm for ML associations
-            assoc = AuctionAssoc( states, obs );
-            
-            % Set associations
-            i = 0;
-            for j = 1:obj.N
-                if (obj.tracks{j}.Present(t))
-                    i = i + 1;
-                    obj.tracks{j}.SetAssoc(t, assoc(i));
-                end
-            end
+%             % Dig out target states
+%             states = cell(obj.N, 1);
+%             for j = obj.N:-1:1
+%                 if obj.tracks{j}.Present(t)
+%                     states{j} = obj.tracks{j}.GetState(t)';
+% %                     states{j} = mvnrnd((Par.A * obj.tracks{j}.GetState(t-1))', Par.Q);
+% %                     ppsl_prob = ppsl_prob + log( mvnpdf(states{j}, (Par.A * obj.tracks{j}.GetState(t-1))', Par.Q) );
+%                 else
+%                     states(j) = [];
+%                 end
+%             end
+%             
+%             % Fudge to make sure its the right way round
+%             if isempty(states)
+%                 states = cell(0, 1);
+%             end
+%             
+%             % Generate a list of observations
+%             if Par.FLAG_ObsMod == 0
+%                 obs = Observs(t).r;
+%             elseif Par.FLAG_ObsMod == 2
+%                 obs = Observs(t).r;
+% %                 obs = zeros(size(Observs(t).r));
+% %                 obs(:,1) = Observs(t).r(:,2).*cos(Observs(t).r(:,1));
+% %                 obs(:,2) = Observs(t).r(:,2).*sin(Observs(t).r(:,1));
+%             end
+%             
+%             % Auction algorithm for ML associations
+%             assoc = AuctionAssoc( states, obs );
+%             
+%             % Set associations
+%             i = 0;
+%             for j = 1:obj.N
+%                 if (obj.tracks{j}.Present(t))
+%                     i = i + 1;
+%                     obj.tracks{j}.SetAssoc(t, assoc(i));
+%                 end
+%             end
             
         end
         
