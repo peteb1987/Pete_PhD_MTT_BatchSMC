@@ -1,4 +1,4 @@
-function [ Observs ] = GenerateObs( TrueState )
+function [ Observs, hits ] = GenerateObs( TrueState )
 %GENERATEOBS Generate a set of observations from a set of known tracks
 
 global Par;
@@ -11,6 +11,9 @@ T = Par.T;               % Number of frames
 
 % Create a structure to store observations
 Observs = repmat(struct('N', 0, 'r', []), T, 1);
+
+% Create a cell array to store a record of when we detect the targets
+hits = zeros(T, Par.NumTgts);
 
 % Loop over time
 for t = 1:T
@@ -39,6 +42,8 @@ for t = 1:T
         if TrueState{j}.Present(t)
             state = TrueState{j}.GetState(t);
             
+            hits(t, j) = 1;
+            
             if Par.FLAG_ObsMod == 0
                 % Gaussian noise only
                 Observs(t).r(i, :) = mvnrnd(state(1:2)', Par.ObsNoiseVar*ones(1,2));
@@ -61,6 +66,7 @@ for t = 1:T
             
             % Remove missed detections
             if rand < (1-Par.PDetect)
+                hits(t, j) = 0;
                 Observs(t).r(i, :) = [];
                 Observs(t).N = Observs(t).N - 1;
                 num_tgts = num_tgts - 1;

@@ -23,7 +23,7 @@ for j = 1:Set.N
         state = Set.tracks{j}.GetState(tt);
         
         % Calculate likelihood
-        if any(abs(state(3:4))>Par.Vlimit)||any(abs(state(1:2))>1.5*Par.Xmax)
+        if any(abs(state(3:4))>Par.Vlimit)||any(abs(state(1:2))>2*Par.Xmax)
             like(j) = -inf;
         else
             ass = Set.tracks{j}.GetAssoc(tt);
@@ -76,9 +76,9 @@ for tt = t-L+1:t
                 assoc(k) = -inf;
                 break
             elseif ass>0
+                assoc(k) = assoc(k) + log(Par.PDetect/num_unassigned);
                 obs_assigned = [obs_assigned; ass];
                 num_unassigned = num_unassigned - 1;
-                assoc(k) = assoc(k) + log(Par.PDetect/num_unassigned);
             elseif ass==0
                 assoc(k) = assoc(k) + log(1-Par.PDetect);
             else
@@ -88,8 +88,13 @@ for tt = t-L+1:t
     end
     
     % Clutter term
-    num_targ = length(obs_assigned);
-    num_clut = Observs(tt).N - num_targ;
+%     num_targ = length(obs_assigned);
+%     num_clut = Observs(tt).N - num_targ;
+    if Set.tracks{1}.GetAssoc(tt)==0
+        num_clut = 1;
+    else
+        num_clut = 0;
+    end
     clut(k) = num_clut * log(Par.ClutDens);
 
     % Birth term
@@ -121,5 +126,6 @@ end
 
 % Combine likelihood and transition density terms
 post = sum(like) + sum(trans) + sum(clut) + sum(assoc) + sum(birth);
+% post = sum(like) + sum(trans) + sum(assoc) + sum(birth);
 
 end

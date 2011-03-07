@@ -33,7 +33,7 @@ end
 %%% Scenario parameters                                                 %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.NumTgts = 1;
+Par.NumTgts = 5;
 Par.TargInitState = cell(Par.NumTgts,1);
 % Par.TargInitState{1} = [-150 150 2 0]';
 
@@ -56,8 +56,8 @@ Par.Qchol = chol(Par.Q);                                                   % Cho
 %%% Observation model parameters                                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ExpClutObs = 2500;                    % Number of clutter objects expected in scene
-Par.PDetect = 0.9;                      % Probability of detecting a target in a given frame
+Par.ExpClutObs = 1000;                    % Number of clutter objects expected in scene
+Par.PDetect = 0.75;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
     Par.ObsNoiseVar = 1;                % Observation noise variance
@@ -77,7 +77,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Par.L = 5;                              % Length of rolling window
-Par.NumPart = 100;                     % Number of particles
+Par.NumPart = 1000;                     % Number of particles
 
 Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
 Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
