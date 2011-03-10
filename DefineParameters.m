@@ -76,16 +76,16 @@ end
 %%% Algorithm parameters                                                %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.L = 5;                              % Length of rolling window
-Par.NumPart = 1000;                     % Number of particles
+Par.L = 3;                              % Length of rolling window
+Par.NumPart = 500;                     % Number of particles
 
-Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
-Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
+% Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
+% Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
 Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
 
-Par.CutOffLike = 0.1*Par.UnifPosDens;       % Likelihood defining the maximum radius for assignment proposals
+% Par.CutOffLike = 0.1*Par.UnifPosDens;       % Likelihood defining the maximum radius for assignment proposals
 
-Par.AuctionVar = 10;%Par.R;                    % Variance of likelihood function used for auction bidding
+% Par.AuctionVar = 10;%Par.R;                    % Variance of likelihood function used for auction bidding
 
 Par.PRemove = 0.5;                      % Probability of removing a track
 Par.PAdd = 0.5;                         % Probability of adding a track

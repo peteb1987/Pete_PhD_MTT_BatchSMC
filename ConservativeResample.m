@@ -32,8 +32,9 @@ for ii = 1:Np
 end
 
 % Get rid of zero weights
-parent(interm_weight==0)=[];
-interm_weight(interm_weight==0)=[];
+thresh = max(interm_weight) / exp(30);
+parent(interm_weight<thresh)=[];
+interm_weight(interm_weight<thresh)=[];
 Nct = length(parent);
 
 % % Get rid of the least likely

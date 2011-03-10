@@ -78,6 +78,8 @@ for j = order
             mu = [p_bng; p_rng] - J*p_x + invS \ ( (((R\J)*(invSig\(A^d)')*next_J'/nV)*(next_y-next_p_pol+next_J*next_p_x)) + (((R\(J/invSig))/(k*Q))*(A^k)*x) );
         end
         
+        S = (S+S')/2;
+        
 %         if (d>z)&&(Set.tracks{j}.GetAssoc(t-z)==0)&&(t-z>0)
 %             S = 10*S;
 %         end

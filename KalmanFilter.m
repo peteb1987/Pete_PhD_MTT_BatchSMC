@@ -1,6 +1,8 @@
 function [ EstState, EstVar ] = KalmanFilter( obs, init_state, init_var )
 %KALMANFILTER Kalman filter a set of observations to give a track estimate
 
+%[ BackState, BackVar ]
+
 global Par;
 
 if size(obs, 2) == 0
@@ -100,5 +102,17 @@ for k = 1:L
     end
 
 end
+
+% BackState = cell(L, 1);
+% BackVar = cell(L, 1);
+% BackState{k} = EstState{k}; BackVar{k} = EstVar{k};
+% % Smoothing
+% for k = L-1:-1:1
+%     
+%     G = EstVar{k}*Par.A'/PredVar{k+1};
+%     BackState{k} = EstState{k} + G * (BackState{k+1}-PredState{k+1});
+%     BackVar{k} = EstVar{k} + G * (BackVar{k+1}-PredVar{k+1}) * G';
+%     
+% end
 
 end
