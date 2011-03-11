@@ -84,16 +84,20 @@ for j = order
 %             S = 10*S;
 %         end
         
-        thresh1 = 20*sqrt(S(1,1));
-        thresh2 = 20*sqrt(S(2,2));
+        thresh1 = 5*sqrt(S(1,1));
+        thresh2 = 5*sqrt(S(2,2));
         
         % Calculate weights
         ppsl_weights = zeros(N+1, 1);
         for i = 1:N
 %             obs_cart  = Pol2Cart(Observs(tt).r(i, 1), Observs(tt).r(i, 2));
 %             if Dist(obs_cart, p_x)<k*Par.Vmax
-            if (BngDist(Observs(tt).r(i, 1), mu(1))<thresh1)&&(abs(Observs(tt).r(i, 2)-mu(2))<thresh2)
-                ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);%/Observs(tt).N
+            innov = Observs(tt).r(i, :)' - mu;
+            if innov(1)>pi
+                innov(1) = 2*pi - innov(1);
+            end
+            if (innov(1)<thresh1)&&(innov(2)<thresh2)&&((innov'/S)*innov < 16)
+                ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
             else
                 ppsl_weights(i) = 0;
             end
@@ -203,13 +207,13 @@ end
 % 
 % end
 
-function d = Dist(x1, x2)
-d = sqrt((x1(1)-x2(1))^2+(x1(2)-x2(2))^2);
-end
-
-function diff = BngDist(b1, b2)
-diff=abs(b1-b2);
-if diff>pi
-    diff = 2*pi - diff;
-end
-end
+% function d = Dist(x1, x2)
+% d = sqrt((x1(1)-x2(1))^2+(x1(2)-x2(2))^2);
+% end
+% 
+% function diff = BngDist(b1, b2)
+% diff=abs(b1-b2);
+% if diff>pi
+%     diff = 2*pi - diff;
+% end
+% end

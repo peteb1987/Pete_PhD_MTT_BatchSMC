@@ -130,7 +130,7 @@ curr_arr = zeros(Par.NumPart, 1);
 
 
 % Loop through clusters
-for c = 1%:length(Distn.clusters)
+for c = 1:length(Distn.clusters)
     
     % Loop through particles
     for ii = 1:Par.NumPart

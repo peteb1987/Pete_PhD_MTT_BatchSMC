@@ -97,14 +97,15 @@ for tt = t-L+1:t
     end
     clut(k) = num_clut * log(Par.ClutDens);
 
-    % Birth term
-    num_births = 0;
-    for j = 1:Set.N
-        if tt==Set.tracks{j}.birth
-            num_births = num_births + 1;
-        end
-    end
-    birth(k) = log(poisspdf(num_births, Par.ExpBirth));
+    birth(k) = 0;
+%     % Birth term
+%     num_births = 0;
+%     for j = 1:Set.N
+%         if tt==Set.tracks{j}.birth
+%             num_births = num_births + 1;
+%         end
+%     end
+%     birth(k) = log(poisspdf(num_births, Par.ExpBirth));
     
 end
 

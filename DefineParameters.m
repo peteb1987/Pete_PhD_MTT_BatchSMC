@@ -15,7 +15,7 @@ Par.FLAG_ResamMove = false;
 %%% Scene parameters                                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.T = 50;                             % Number of frames
+Par.T = 10;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
 Par.Xmax = 500;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
@@ -79,13 +79,13 @@ end
 Par.L = 3;                              % Length of rolling window
 Par.NumPart = 500;                     % Number of particles
 
-% Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
-% Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
+Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)
+Par.BirthExclusionRadius = 25;          % Radius within which a birth site is not identified
 Par.KFInitVar = 1E-20;                  % Variance with which to initialise Kalman Filters (scaled identity matrix)
 
-% Par.CutOffLike = 0.1*Par.UnifPosDens;       % Likelihood defining the maximum radius for assignment proposals
+Par.CutOffLike = 0.1*Par.UnifPosDens;       % Likelihood defining the maximum radius for assignment proposals
 
-% Par.AuctionVar = 10;%Par.R;                    % Variance of likelihood function used for auction bidding
+Par.AuctionVar = 10;%Par.R;                    % Variance of likelihood function used for auction bidding
 
 Par.PRemove = 0.5;                      % Probability of removing a track
 Par.PAdd = 0.5;                         % Probability of adding a track
