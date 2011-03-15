@@ -87,21 +87,43 @@ for j = order
         thresh1 = 5*sqrt(S(1,1));
         thresh2 = 5*sqrt(S(2,2));
         
+        % Precalculate some things to speed up the next loop, which is over
+        % 100's of observations within a loop over 100's of particles (i.e.
+        % the bottleneck of the whole program)
+        innov = bsxfun(@minus, Observs(tt).r, mu')';
+        wrap_around = innov(1,:)>pi;
+        innov(1, wrap_around) = 2*pi - innov(1, wrap_around);
+        test1 = abs(innov(1, :)) < thresh1;
+        test2 = abs(innov(2, :)) < thresh2;
+        indexes = find(test1&test2);
+        test = zeros(1, Observs(tt).N);
+        for i = indexes
+            test(i) = ((innov(:,i)'/S)*innov(:,i) < 16);
+        end
+        validated = find(test);
+%         disp(length(validated));
+        
         % Calculate weights
         ppsl_weights = zeros(N+1, 1);
-        for i = 1:N
-%             obs_cart  = Pol2Cart(Observs(tt).r(i, 1), Observs(tt).r(i, 2));
-%             if Dist(obs_cart, p_x)<k*Par.Vmax
-            innov = Observs(tt).r(i, :)' - mu;
-            if innov(1)>pi
-                innov(1) = 2*pi - innov(1);
-            end
-            if (innov(1)<thresh1)&&(innov(2)<thresh2)&&((innov'/S)*innov < 16)
-                ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
-            else
-                ppsl_weights(i) = 0;
-            end
+        for i = validated
+            ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
         end
+        
+%         % Calculate weights
+%         ppsl_weights = zeros(N+1, 1);
+%         for i = 1:N
+% %             obs_cart  = Pol2Cart(Observs(tt).r(i, 1), Observs(tt).r(i, 2));
+% %             if Dist(obs_cart, p_x)<k*Par.Vmax
+%             innov = Observs(tt).r(i, :)' - mu;
+%             if innov(1)>pi
+%                 innov(1) = 2*pi - innov(1);
+%             end
+%             if (innov(1)<thresh1)&&(innov(2)<thresh2)&&((innov'/S)*innov < 16)
+%                 ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
+%             else
+%                 ppsl_weights(i) = 0;
+%             end
+%         end
         
         % Clutter
         ppsl_weights(N+1) = Par.ClutDens * (1-Par.PDetect);

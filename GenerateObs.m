@@ -42,7 +42,7 @@ for t = 1:T
         if TrueState{j}.Present(t)
             state = TrueState{j}.GetState(t);
             
-            hits(t, j) = 1;
+            hits(t, j) = i;
             
             if Par.FLAG_ObsMod == 0
                 % Gaussian noise only

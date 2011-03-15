@@ -27,7 +27,8 @@ for j = 1:N
     TargSpec(j).state = zeros(4, 1);
 %     TargSpec(j).state(1) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
 %     TargSpec(j).state(2) = unifrnd(-0.5*Par.Xmax, 0.5*Par.Xmax);
-    rng = unifrnd(0.15*Par.Xmax, 0.25*Par.Xmax);
+%     rng = unifrnd(0.15*Par.Xmax, 0.25*Par.Xmax);
+    rng = unifrnd(0.10*Par.Xmax, 0.50*Par.Xmax);
     bng = unifrnd(-pi, pi);
     TargSpec(j).state(1) = rng*cos(bng);
     TargSpec(j).state(2) = rng*sin(bng);
@@ -44,6 +45,14 @@ end
 %%% Manually overwrite individual target values if desired              %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+% TargSpec(1).state = [-100, 100, 3, 0]';
+% TargSpec(2).state = [-100, 90, 3, 0]';
+% TargSpec(3).state = [-100, 80, 3, 0]';
+% TargSpec(4).state = [-100, 110, 3, 0]';
+% TargSpec(5).state = [-100, 120, 3, 0]';
+
+
 % % SIMPLE TEST, SINGLE TARGET
 % 
 % j = 1;
@@ -52,13 +61,13 @@ end
 % num = T - TargSpec(j).birth + 1;
 % TargSpec(j).acc = zeros(num, 2);
 
-% SIMPLE TEST, N TARGETS, CLUTTER, MISSED DETECTIONS
-for j = 1:N
-    TargSpec(j).birth = 2*j-1;
-    num = T - TargSpec(j).birth + 1;
-    TargSpec(j).acc = zeros(num, 2);
-    Par.TargInitState{j} = TargSpec(j).state;
-end
+% % SIMPLE TEST, N TARGETS, CLUTTER, MISSED DETECTIONS
+% for j = 1:N
+%     TargSpec(j).birth = 2*j-1;
+%     num = T - TargSpec(j).birth + 1;
+%     TargSpec(j).acc = zeros(num, 2);
+%     Par.TargInitState{j} = TargSpec(j).state;
+% end
 % TargSpec(1).death = 15;
 % TargSpec(2).death = 23;
 % TargSpec(3).death = 25;

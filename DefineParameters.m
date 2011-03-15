@@ -15,7 +15,7 @@ Par.FLAG_ResamMove = false;
 %%% Scene parameters                                                    %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.T = 10;                             % Number of frames
+Par.T = 50;                             % Number of frames
 Par.P = 1; P = Par.P;                   % Sampling period
 Par.Xmax = 500;                         % Scene limit
 Par.Vmax = 10;                          % Maximum velocity
@@ -56,7 +56,7 @@ Par.Qchol = chol(Par.Q);                                                   % Cho
 %%% Observation model parameters                                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.ExpClutObs = 1000;                    % Number of clutter objects expected in scene
+Par.ExpClutObs = 1000;%50;%160;%                    % Number of clutter objects expected in scene - 1000 is dense for Xmax=500, 160 for Xmax=200
 Par.PDetect = 0.75;                      % Probability of detecting a target in a given frame
 
 if Par.FLAG_ObsMod == 0
@@ -76,7 +76,7 @@ end
 %%% Algorithm parameters                                                %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Par.L = 3;                              % Length of rolling window
+Par.L = 5;                              % Length of rolling window
 Par.NumPart = 500;                     % Number of particles
 
 Par.Vlimit = 2*Par.Vmax;                % Limit above which we do not accept velocity (lh=0)

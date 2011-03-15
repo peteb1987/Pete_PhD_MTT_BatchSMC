@@ -17,9 +17,9 @@ for j = 1:Ns
     Parts = zeros(Par.NumPart, 4);
     for ii = 1:Par.NumPart
         Parts(ii, :) = Distn.clusters{j}.particles{ii}.tracks{1}.GetState(t)';
-        x = ceil(Parts(ii, 1) / Par.Vlimit) + Nbox/2;
-        y = ceil(Parts(ii, 2) / Par.Vlimit) + Nbox/2;
-        grid(x-1:x+2, y-1:y+1) = 1;
+%         x = ceil(Parts(ii, 1) / Par.Vlimit) + Nbox/2;
+%         y = ceil(Parts(ii, 2) / Par.Vlimit) + Nbox/2;
+%         grid(x-1:x+2, y-1:y+1) = 1;
     end
     Parts(:, 3:4) = [];
     

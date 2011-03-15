@@ -5,7 +5,7 @@ clup
 dbstop if error
 
 % Set a standard random stream (for repeatability)
-s = RandStream('mt19937ar', 'seed', 5);
+s = RandStream('mt19937ar', 'seed', 0);
 RandStream.setDefaultStream(s);
 
 % Define all the necessary parameters in a global structure.
@@ -30,6 +30,9 @@ fig = PlotTrueState(TrueState);
 
 % Plot final estimates
 PlotTracks(Distns{Par.T}, fig);
+
+% Analyse associations
+[ass, count] = AnalyseAss( detections, Distns);
 
 % Plot ESS
 % figure, plot(ESS_post), ylim([0 Par.NumPart])
