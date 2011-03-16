@@ -112,14 +112,21 @@ for j = order
 %         % Calculate weights
 %         ppsl_weights = zeros(N+1, 1);
 %         for i = 1:N
+%             
+%             if (BngDist(Observs(tt).r(i, 1), mu(1))<thresh1)&&(abs(Observs(tt).r(i, 2)-mu(2))<thresh2)
+%                 ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);%/Observs(tt).N
+% 
 % %             obs_cart  = Pol2Cart(Observs(tt).r(i, 1), Observs(tt).r(i, 2));
 % %             if Dist(obs_cart, p_x)<k*Par.Vmax
-%             innov = Observs(tt).r(i, :)' - mu;
-%             if innov(1)>pi
-%                 innov(1) = 2*pi - innov(1);
-%             end
-%             if (innov(1)<thresh1)&&(innov(2)<thresh2)&&((innov'/S)*innov < 16)
-%                 ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
+% %             innov = Observs(tt).r(i, :)' - mu;
+% %             if innov(1)>pi
+% %                 innov(1) = innov(1) - 2*pi;
+% %             end
+% %             if innov(1)<-pi
+% %                 innov(1) = innov(1) + 2*pi;
+% %             end
+% %             if (abs(innov(1))<thresh1)&&(abs(innov(2))<thresh2)&&((innov'/S)*innov < 16)
+% %                 ppsl_weights(i) = (Par.PDetect) * mvnpdf(Observs(tt).r(i, :), mu', S);
 %             else
 %                 ppsl_weights(i) = 0;
 %             end
@@ -233,9 +240,9 @@ end
 % d = sqrt((x1(1)-x2(1))^2+(x1(2)-x2(2))^2);
 % end
 % 
-% function diff = BngDist(b1, b2)
-% diff=abs(b1-b2);
-% if diff>pi
-%     diff = 2*pi - diff;
-% end
-% end
+function diff = BngDist(b1, b2)
+diff=abs(b1-b2);
+if diff>pi
+    diff = 2*pi - diff;
+end
+end

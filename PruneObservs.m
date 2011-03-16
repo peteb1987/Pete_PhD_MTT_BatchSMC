@@ -26,7 +26,7 @@ for j = 1:Ns
     
     
     States(j, :) = mean(Parts);
-    Spread(j, :) = 0.5*range(Parts);
+    Spread(j, :) = range(Parts);
 end
 
 % Loop through observations and delete obvious clutter
